@@ -2,6 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
+  <script>
+    (function () {
+      var p = window.location.pathname || "/";
+      if (!p.endsWith("/")) {
+        p = /\.html$/i.test(p) ? p.replace(/\/[^/]+$/, "/") : p + "/";
+      }
+      var b = document.createElement("base");
+      b.href = p;
+      document.head.appendChild(b);
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BPC Clasificación — Dashboard estático</title>
   <link rel="stylesheet" href="./assets/style.css" />
