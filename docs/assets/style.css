@@ -1,0 +1,237 @@
+/* Dashboard estático BPC — sin dependencias externas */
+:root {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --text: #1a1d23;
+  --muted: #5c6370;
+  --border: #dde1e8;
+  --normal-bg: #e3f4e8;
+  --normal-border: #8fcf9c;
+  --attention-bg: #fff4e0;
+  --attention-border: #f0b429;
+  --high-bg: #fde8e8;
+  --high-border: #e85d5d;
+  --unknown-bg: #eceff3;
+  --unknown-border: #b0b8c4;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 3rem;
+}
+
+.page-header h1 {
+  font-size: 1.45rem;
+  font-weight: 650;
+  margin: 0 0 0.35rem;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.meta-line {
+  margin: 0.75rem 0 0.25rem;
+  font-weight: 500;
+}
+
+.note-inline {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0.35rem 0 0;
+}
+
+.section {
+  margin-top: 2rem;
+}
+
+.section h2 {
+  font-size: 1.1rem;
+  margin: 0 0 0.75rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.35rem;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 0.85rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.kpi-card .label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.kpi-card .value {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-top: 0.2rem;
+  word-break: break-word;
+}
+
+.kpi-card.normal {
+  background: var(--normal-bg);
+  border-color: var(--normal-border);
+}
+.kpi-card.attention {
+  background: var(--attention-bg);
+  border-color: var(--attention-border);
+}
+.kpi-card.high {
+  background: var(--high-bg);
+  border-color: var(--high-border);
+}
+.kpi-card.unknown {
+  background: var(--unknown-bg);
+  border-color: var(--unknown-border);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.5rem 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.info-row .k { font-size: 0.8rem; color: var(--muted); }
+.info-row .v { font-weight: 500; }
+
+.semaphore {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.sem-bar {
+  position: relative;
+  height: 28px;
+  border-radius: 6px;
+  background: linear-gradient(
+    to right,
+    var(--normal-bg) 0%,
+    var(--normal-bg) 49.9%,
+    var(--attention-bg) 50%,
+    var(--attention-bg) 79.9%,
+    var(--high-bg) 80%,
+    var(--high-bg) 100%
+  );
+  border: 1px solid var(--border);
+  position: relative;
+  margin-top: 0.5rem;
+}
+
+.sem-marker {
+  position: absolute;
+  top: -6px;
+  width: 4px;
+  height: 40px;
+  background: #333;
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+
+.sem-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
+
+.sem-value {
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+table.data-table th,
+table.data-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.45rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.data-table th {
+  background: #eef1f5;
+  font-weight: 600;
+}
+
+table.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.empty-msg {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.method-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+.method-text {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.error-banner {
+  background: #fde8e8;
+  color: #7a1f1f;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f5bcbc;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+}
+
+.error-banner.hidden {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .page-header h1 { font-size: 1.2rem; }
+  table.data-table { font-size: 0.8rem; }
+}

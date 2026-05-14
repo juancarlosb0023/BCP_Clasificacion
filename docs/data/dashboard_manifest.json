@@ -1,0 +1,1659 @@
+{
+  "manifest_version": "1.0",
+  "generated_at_utc": "2026-05-14T23:04:32.317340+00:00",
+  "project_root_relative": "data/dashboard/",
+  "dashboard_dir": "data/dashboard",
+  "missing_files": [],
+  "tables": [
+    {
+      "filename": "current_asset_state.json",
+      "description": "Documento JSON (estructura anidada; expandir en Power Query).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "",
+      "relationships": [],
+      "power_bi_usage": "Obtener datos > JSON; expandir registros según necesidad.",
+      "warnings": [
+        "Estructura jerárquica; no es tabla plana."
+      ],
+      "status": "present",
+      "columns": [
+        {
+          "name": "asset_id",
+          "dtype": "json"
+        },
+        {
+          "name": "state_timestamp",
+          "dtype": "json"
+        },
+        {
+          "name": "current_window",
+          "dtype": "json"
+        },
+        {
+          "name": "batch_real",
+          "dtype": "json"
+        },
+        {
+          "name": "batch_predicted",
+          "dtype": "json"
+        },
+        {
+          "name": "classification_confidence",
+          "dtype": "json"
+        },
+        {
+          "name": "classification_margin_top2",
+          "dtype": "json"
+        },
+        {
+          "name": "baseline_used",
+          "dtype": "json"
+        },
+        {
+          "name": "condition_index",
+          "dtype": "json"
+        },
+        {
+          "name": "health_index",
+          "dtype": "json"
+        },
+        {
+          "name": "condition_state",
+          "dtype": "json"
+        },
+        {
+          "name": "assessment_method",
+          "dtype": "json"
+        },
+        {
+          "name": "top_condition_drivers",
+          "dtype": "json"
+        },
+        {
+          "name": "alerts_active",
+          "dtype": "json"
+        },
+        {
+          "name": "trend",
+          "dtype": "json"
+        },
+        {
+          "name": "methodological_note",
+          "dtype": "json"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_assessment_thresholds_by_batch.csv",
+      "description": "Tabla exportada (dashboard_assessment_thresholds_by_batch.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "Batch",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "Batch",
+          "dtype": "string"
+        },
+        {
+          "name": "weight_id",
+          "dtype": "float"
+        },
+        {
+          "name": "weight_variable",
+          "dtype": "string"
+        },
+        {
+          "name": "matched_raw_column",
+          "dtype": "string"
+        },
+        {
+          "name": "component",
+          "dtype": "string"
+        },
+        {
+          "name": "family",
+          "dtype": "string"
+        },
+        {
+          "name": "position",
+          "dtype": "string"
+        },
+        {
+          "name": "unit",
+          "dtype": "string"
+        },
+        {
+          "name": "value_stat",
+          "dtype": "string"
+        },
+        {
+          "name": "orientation",
+          "dtype": "string"
+        },
+        {
+          "name": "v0_estimated",
+          "dtype": "float"
+        },
+        {
+          "name": "h_estimated",
+          "dtype": "float"
+        },
+        {
+          "name": "hh_estimated",
+          "dtype": "float"
+        },
+        {
+          "name": "min_value",
+          "dtype": "float"
+        },
+        {
+          "name": "p01",
+          "dtype": "float"
+        },
+        {
+          "name": "p05",
+          "dtype": "float"
+        },
+        {
+          "name": "median_value",
+          "dtype": "float"
+        },
+        {
+          "name": "p95",
+          "dtype": "float"
+        },
+        {
+          "name": "p99",
+          "dtype": "float"
+        },
+        {
+          "name": "max_value",
+          "dtype": "float"
+        },
+        {
+          "name": "n_windows",
+          "dtype": "float"
+        },
+        {
+          "name": "threshold_method",
+          "dtype": "string"
+        },
+        {
+          "name": "threshold_warning",
+          "dtype": "string"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_assessment_thresholds_global.csv",
+      "description": "Tabla exportada (dashboard_assessment_thresholds_global.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "weight_id",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "weight_id",
+          "dtype": "float"
+        },
+        {
+          "name": "weight_variable",
+          "dtype": "string"
+        },
+        {
+          "name": "matched_raw_column",
+          "dtype": "string"
+        },
+        {
+          "name": "component",
+          "dtype": "string"
+        },
+        {
+          "name": "family",
+          "dtype": "string"
+        },
+        {
+          "name": "position",
+          "dtype": "string"
+        },
+        {
+          "name": "unit",
+          "dtype": "string"
+        },
+        {
+          "name": "value_stat",
+          "dtype": "string"
+        },
+        {
+          "name": "orientation",
+          "dtype": "string"
+        },
+        {
+          "name": "v0_estimated",
+          "dtype": "float"
+        },
+        {
+          "name": "h_estimated",
+          "dtype": "float"
+        },
+        {
+          "name": "hh_estimated",
+          "dtype": "float"
+        },
+        {
+          "name": "min_value",
+          "dtype": "float"
+        },
+        {
+          "name": "p01",
+          "dtype": "float"
+        },
+        {
+          "name": "p05",
+          "dtype": "float"
+        },
+        {
+          "name": "median_value",
+          "dtype": "float"
+        },
+        {
+          "name": "p95",
+          "dtype": "float"
+        },
+        {
+          "name": "p99",
+          "dtype": "float"
+        },
+        {
+          "name": "max_value",
+          "dtype": "float"
+        },
+        {
+          "name": "n_windows",
+          "dtype": "float"
+        },
+        {
+          "name": "threshold_method",
+          "dtype": "string"
+        },
+        {
+          "name": "threshold_warning",
+          "dtype": "string"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_assessment_thresholds_summary.csv",
+      "description": "Tabla exportada (dashboard_assessment_thresholds_summary.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "metric",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "metric",
+          "dtype": "string"
+        },
+        {
+          "name": "value",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_batch_transitions.csv",
+      "description": "Tabla exportada (dashboard_batch_transitions.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "transition_id",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "transition_id",
+          "dtype": "float"
+        },
+        {
+          "name": "timestamp",
+          "dtype": "string"
+        },
+        {
+          "name": "previous_batch",
+          "dtype": "string"
+        },
+        {
+          "name": "current_batch",
+          "dtype": "string"
+        },
+        {
+          "name": "previous_timestamp",
+          "dtype": "string"
+        },
+        {
+          "name": "delta_seconds_since_previous_sample",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_condition_alerts_active.csv",
+      "description": "Tabla exportada (dashboard_condition_alerts_active.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "alert_id",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "alert_id",
+          "dtype": "string"
+        },
+        {
+          "name": "window_id",
+          "dtype": "float"
+        },
+        {
+          "name": "raw_variable",
+          "dtype": "string"
+        },
+        {
+          "name": "component",
+          "dtype": "string"
+        },
+        {
+          "name": "family",
+          "dtype": "string"
+        },
+        {
+          "name": "position",
+          "dtype": "string"
+        },
+        {
+          "name": "unit",
+          "dtype": "string"
+        },
+        {
+          "name": "condition_score",
+          "dtype": "float"
+        },
+        {
+          "name": "weighted_score",
+          "dtype": "float"
+        },
+        {
+          "name": "alert_level",
+          "dtype": "string"
+        },
+        {
+          "name": "persisted_last_n_windows",
+          "dtype": "float"
+        },
+        {
+          "name": "persistence_count",
+          "dtype": "float"
+        },
+        {
+          "name": "baseline_batch_used",
+          "dtype": "string"
+        },
+        {
+          "name": "assessment_method",
+          "dtype": "string"
+        },
+        {
+          "name": "note",
+          "dtype": "string"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_condition_contributions_long.csv",
+      "description": "Tabla exportada (dashboard_condition_contributions_long.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "window_id",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "window_id",
+          "dtype": "float"
+        },
+        {
+          "name": "window_start",
+          "dtype": "string"
+        },
+        {
+          "name": "window_end",
+          "dtype": "string"
+        },
+        {
+          "name": "Batch",
+          "dtype": "string"
+        },
+        {
+          "name": "baseline_batch_used",
+          "dtype": "string"
+        },
+        {
+          "name": "raw_variable",
+          "dtype": "string"
+        },
+        {
+          "name": "weight_variable",
+          "dtype": "string"
+        },
+        {
+          "name": "matched_raw_column",
+          "dtype": "string"
+        },
+        {
+          "name": "component",
+          "dtype": "string"
+        },
+        {
+          "name": "family",
+          "dtype": "string"
+        },
+        {
+          "name": "position",
+          "dtype": "string"
+        },
+        {
+          "name": "unit",
+          "dtype": "string"
+        },
+        {
+          "name": "value_stat",
+          "dtype": "string"
+        },
+        {
+          "name": "value",
+          "dtype": "float"
+        },
+        {
+          "name": "v0",
+          "dtype": "float"
+        },
+        {
+          "name": "h",
+          "dtype": "float"
+        },
+        {
+          "name": "hh",
+          "dtype": "float"
+        },
+        {
+          "name": "orientation",
+          "dtype": "string"
+        },
+        {
+          "name": "condition_score",
+          "dtype": "float"
+        },
+        {
+          "name": "health_score",
+          "dtype": "float"
+        },
+        {
+          "name": "weight_normalized",
+          "dtype": "float"
+        },
+        {
+          "name": "weighted_score",
+          "dtype": "float"
+        },
+        {
+          "name": "weighted_health_score",
+          "dtype": "float"
+        },
+        {
+          "name": "assessment_method",
+          "dtype": "string"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_condition_contributions_top_by_window.csv",
+      "description": "Tabla exportada (dashboard_condition_contributions_top_by_window.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "window_id",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "window_id",
+          "dtype": "float"
+        },
+        {
+          "name": "rank",
+          "dtype": "float"
+        },
+        {
+          "name": "raw_variable",
+          "dtype": "string"
+        },
+        {
+          "name": "component",
+          "dtype": "string"
+        },
+        {
+          "name": "family",
+          "dtype": "string"
+        },
+        {
+          "name": "position",
+          "dtype": "string"
+        },
+        {
+          "name": "condition_score",
+          "dtype": "float"
+        },
+        {
+          "name": "weight_normalized",
+          "dtype": "float"
+        },
+        {
+          "name": "weighted_score",
+          "dtype": "float"
+        },
+        {
+          "name": "share_of_condition_index_percent",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_condition_current_state.csv",
+      "description": "Tabla exportada (dashboard_condition_current_state.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "window_id",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "window_id",
+          "dtype": "float"
+        },
+        {
+          "name": "window_start",
+          "dtype": "string"
+        },
+        {
+          "name": "window_end",
+          "dtype": "string"
+        },
+        {
+          "name": "Batch",
+          "dtype": "string"
+        },
+        {
+          "name": "baseline_batch_used",
+          "dtype": "string"
+        },
+        {
+          "name": "y_pred_label",
+          "dtype": "string"
+        },
+        {
+          "name": "confidence",
+          "dtype": "float"
+        },
+        {
+          "name": "margin_top2",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index",
+          "dtype": "float"
+        },
+        {
+          "name": "health_index",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_state",
+          "dtype": "string"
+        },
+        {
+          "name": "assessment_method",
+          "dtype": "string"
+        },
+        {
+          "name": "top_component_by_contribution",
+          "dtype": "string"
+        },
+        {
+          "name": "top_family_by_contribution",
+          "dtype": "string"
+        },
+        {
+          "name": "top_variable_by_contribution",
+          "dtype": "string"
+        },
+        {
+          "name": "top_variable_weighted_score",
+          "dtype": "float"
+        },
+        {
+          "name": "n_active_attention_variables",
+          "dtype": "float"
+        },
+        {
+          "name": "n_active_high_variables",
+          "dtype": "float"
+        },
+        {
+          "name": "note",
+          "dtype": "string"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_condition_index_by_batch.csv",
+      "description": "Tabla exportada (dashboard_condition_index_by_batch.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "Batch",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "Batch",
+          "dtype": "string"
+        },
+        {
+          "name": "n_windows",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_median",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_p05",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_p95",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_min",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_max",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_condition_index_thresholded_by_batch_by_batch.csv",
+      "description": "Tabla exportada (dashboard_condition_index_thresholded_by_batch_by_batch.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "Batch",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "Batch",
+          "dtype": "string"
+        },
+        {
+          "name": "n_windows",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_median",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_p05",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_p95",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_min",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_max",
+          "dtype": "float"
+        },
+        {
+          "name": "assessment_method",
+          "dtype": "string"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_condition_index_thresholded_by_batch_by_window.csv",
+      "description": "Tabla exportada (dashboard_condition_index_thresholded_by_batch_by_window.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "window_id",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "window_id",
+          "dtype": "float"
+        },
+        {
+          "name": "window_start",
+          "dtype": "string"
+        },
+        {
+          "name": "window_end",
+          "dtype": "string"
+        },
+        {
+          "name": "Batch",
+          "dtype": "string"
+        },
+        {
+          "name": "has_near_transition",
+          "dtype": "float"
+        },
+        {
+          "name": "baseline_batch_used",
+          "dtype": "string"
+        },
+        {
+          "name": "condition_index",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_available_weight",
+          "dtype": "float"
+        },
+        {
+          "name": "n_variables_used",
+          "dtype": "float"
+        },
+        {
+          "name": "n_variables_unmatched",
+          "dtype": "float"
+        },
+        {
+          "name": "assessment_method",
+          "dtype": "string"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_condition_index_thresholded_global_by_batch.csv",
+      "description": "Tabla exportada (dashboard_condition_index_thresholded_global_by_batch.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "Batch",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "Batch",
+          "dtype": "string"
+        },
+        {
+          "name": "n_windows",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_median",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_p05",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_p95",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_min",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_max",
+          "dtype": "float"
+        },
+        {
+          "name": "assessment_method",
+          "dtype": "string"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_condition_index_thresholded_global_by_window.csv",
+      "description": "Tabla exportada (dashboard_condition_index_thresholded_global_by_window.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "window_id",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "window_id",
+          "dtype": "float"
+        },
+        {
+          "name": "window_start",
+          "dtype": "string"
+        },
+        {
+          "name": "window_end",
+          "dtype": "string"
+        },
+        {
+          "name": "Batch",
+          "dtype": "string"
+        },
+        {
+          "name": "has_near_transition",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_available_weight",
+          "dtype": "float"
+        },
+        {
+          "name": "n_variables_used",
+          "dtype": "float"
+        },
+        {
+          "name": "n_variables_unmatched",
+          "dtype": "float"
+        },
+        {
+          "name": "assessment_method",
+          "dtype": "string"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_condition_trend_summary.csv",
+      "description": "Tabla exportada (dashboard_condition_trend_summary.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "n_windows_used",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "n_windows_used",
+          "dtype": "float"
+        },
+        {
+          "name": "first_window_id",
+          "dtype": "float"
+        },
+        {
+          "name": "last_window_id",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_first",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_last",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index_delta",
+          "dtype": "float"
+        },
+        {
+          "name": "slope_per_window",
+          "dtype": "float"
+        },
+        {
+          "name": "slope_per_hour",
+          "dtype": "float"
+        },
+        {
+          "name": "rolling_mean_last",
+          "dtype": "float"
+        },
+        {
+          "name": "rolling_mean_previous",
+          "dtype": "float"
+        },
+        {
+          "name": "trend_direction",
+          "dtype": "string"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_confusion_best_model.csv",
+      "description": "Tabla exportada (dashboard_confusion_best_model.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "true_label",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "true_label",
+          "dtype": "string"
+        },
+        {
+          "name": "pred_label",
+          "dtype": "string"
+        },
+        {
+          "name": "count",
+          "dtype": "float"
+        },
+        {
+          "name": "percent_by_true",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_feature_importance.csv",
+      "description": "Tabla exportada (dashboard_feature_importance.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "consolidated_rank",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "consolidated_rank",
+          "dtype": "float"
+        },
+        {
+          "name": "feature",
+          "dtype": "string"
+        },
+        {
+          "name": "raw_variable",
+          "dtype": "string"
+        },
+        {
+          "name": "statistic",
+          "dtype": "string"
+        },
+        {
+          "name": "family",
+          "dtype": "string"
+        },
+        {
+          "name": "component",
+          "dtype": "string"
+        },
+        {
+          "name": "position",
+          "dtype": "string"
+        },
+        {
+          "name": "unit",
+          "dtype": "string"
+        },
+        {
+          "name": "perm_importance_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "shap_importance_mean_abs",
+          "dtype": "float"
+        },
+        {
+          "name": "consolidated_score",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_kpis.csv",
+      "description": "Tabla exportada (dashboard_kpis.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "metric",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "metric",
+          "dtype": "string"
+        },
+        {
+          "name": "value",
+          "dtype": "float"
+        },
+        {
+          "name": "category",
+          "dtype": "string"
+        },
+        {
+          "name": "description",
+          "dtype": "string"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_model_metrics.csv",
+      "description": "Tabla exportada (dashboard_model_metrics.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "model_name",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "model_name",
+          "dtype": "string"
+        },
+        {
+          "name": "accuracy_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "accuracy_std",
+          "dtype": "float"
+        },
+        {
+          "name": "balanced_accuracy_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "balanced_accuracy_std",
+          "dtype": "float"
+        },
+        {
+          "name": "f1_macro_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "f1_macro_std",
+          "dtype": "float"
+        },
+        {
+          "name": "precision_macro_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "recall_macro_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "mcc_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "cohen_kappa_mean",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_pairwise_permanova.csv",
+      "description": "Tabla exportada (dashboard_pairwise_permanova.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "class_a",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "class_a",
+          "dtype": "string"
+        },
+        {
+          "name": "class_b",
+          "dtype": "string"
+        },
+        {
+          "name": "pseudo_F",
+          "dtype": "float"
+        },
+        {
+          "name": "p_value",
+          "dtype": "float"
+        },
+        {
+          "name": "r2",
+          "dtype": "float"
+        },
+        {
+          "name": "n_samples",
+          "dtype": "float"
+        },
+        {
+          "name": "n_permutations",
+          "dtype": "float"
+        },
+        {
+          "name": "p_value_fdr",
+          "dtype": "float"
+        },
+        {
+          "name": "reject_fdr_0_05",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_pairwise_permdisp.csv",
+      "description": "Tabla exportada (dashboard_pairwise_permdisp.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "class_a",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "class_a",
+          "dtype": "string"
+        },
+        {
+          "name": "class_b",
+          "dtype": "string"
+        },
+        {
+          "name": "F",
+          "dtype": "float"
+        },
+        {
+          "name": "p_value",
+          "dtype": "float"
+        },
+        {
+          "name": "mean_disp_a",
+          "dtype": "float"
+        },
+        {
+          "name": "mean_disp_b",
+          "dtype": "float"
+        },
+        {
+          "name": "n_samples",
+          "dtype": "float"
+        },
+        {
+          "name": "n_permutations",
+          "dtype": "float"
+        },
+        {
+          "name": "p_value_fdr",
+          "dtype": "float"
+        },
+        {
+          "name": "reject_fdr_0_05",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_pca_centroids.csv",
+      "description": "Tabla exportada (dashboard_pca_centroids.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "Batch",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "Batch",
+          "dtype": "string"
+        },
+        {
+          "name": "PC1_centroid",
+          "dtype": "float"
+        },
+        {
+          "name": "PC2_centroid",
+          "dtype": "float"
+        },
+        {
+          "name": "n_windows",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_pca_projection.csv",
+      "description": "Tabla exportada (dashboard_pca_projection.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "PC1",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "PC1",
+          "dtype": "float"
+        },
+        {
+          "name": "PC2",
+          "dtype": "float"
+        },
+        {
+          "name": "Batch",
+          "dtype": "string"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_predictions.csv",
+      "description": "Tabla exportada (dashboard_predictions.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "window_id",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "window_id",
+          "dtype": "float"
+        },
+        {
+          "name": "window_start",
+          "dtype": "string"
+        },
+        {
+          "name": "window_end",
+          "dtype": "string"
+        },
+        {
+          "name": "Batch",
+          "dtype": "string"
+        },
+        {
+          "name": "y_true_label",
+          "dtype": "string"
+        },
+        {
+          "name": "y_pred_label",
+          "dtype": "string"
+        },
+        {
+          "name": "prob_CASTILLA",
+          "dtype": "float"
+        },
+        {
+          "name": "prob_MEZCLA",
+          "dtype": "float"
+        },
+        {
+          "name": "prob_RUBIALES",
+          "dtype": "float"
+        },
+        {
+          "name": "confidence",
+          "dtype": "float"
+        },
+        {
+          "name": "margin_top2",
+          "dtype": "float"
+        },
+        {
+          "name": "is_correct",
+          "dtype": "float"
+        },
+        {
+          "name": "condition_index",
+          "dtype": "float"
+        },
+        {
+          "name": "assessment_method",
+          "dtype": "string"
+        },
+        {
+          "name": "condition_index_thresholded_global",
+          "dtype": "float"
+        },
+        {
+          "name": "assessment_method_thresholded_global",
+          "dtype": "string"
+        },
+        {
+          "name": "baseline_batch_used",
+          "dtype": "string"
+        },
+        {
+          "name": "condition_index_thresholded_by_batch",
+          "dtype": "float"
+        },
+        {
+          "name": "assessment_method_thresholded_by_batch",
+          "dtype": "string"
+        },
+        {
+          "name": "health_index_thresholded_by_batch",
+          "dtype": "float"
+        },
+        {
+          "name": "has_near_transition",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_rank_component.csv",
+      "description": "Tabla exportada (dashboard_rank_component.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "component",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "component",
+          "dtype": "string"
+        },
+        {
+          "name": "importance_sum",
+          "dtype": "float"
+        },
+        {
+          "name": "importance_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "n_features",
+          "dtype": "float"
+        },
+        {
+          "name": "share_percent",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_rank_family.csv",
+      "description": "Tabla exportada (dashboard_rank_family.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "family",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "family",
+          "dtype": "string"
+        },
+        {
+          "name": "importance_sum",
+          "dtype": "float"
+        },
+        {
+          "name": "importance_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "n_features",
+          "dtype": "float"
+        },
+        {
+          "name": "share_percent",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_rank_position.csv",
+      "description": "Tabla exportada (dashboard_rank_position.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "position",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "position",
+          "dtype": "string"
+        },
+        {
+          "name": "importance_sum",
+          "dtype": "float"
+        },
+        {
+          "name": "importance_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "n_features",
+          "dtype": "float"
+        },
+        {
+          "name": "share_percent",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_rank_raw_variable.csv",
+      "description": "Tabla exportada (dashboard_rank_raw_variable.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "raw_variable",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "raw_variable",
+          "dtype": "string"
+        },
+        {
+          "name": "importance_sum",
+          "dtype": "float"
+        },
+        {
+          "name": "importance_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "n_features",
+          "dtype": "float"
+        },
+        {
+          "name": "share_percent",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_rank_statistic.csv",
+      "description": "Tabla exportada (dashboard_rank_statistic.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "statistic",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "statistic",
+          "dtype": "string"
+        },
+        {
+          "name": "importance_sum",
+          "dtype": "float"
+        },
+        {
+          "name": "importance_mean",
+          "dtype": "float"
+        },
+        {
+          "name": "n_features",
+          "dtype": "float"
+        },
+        {
+          "name": "share_percent",
+          "dtype": "float"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_sensor_weights_with_thresholds.csv",
+      "description": "Tabla exportada (dashboard_sensor_weights_with_thresholds.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "weight_id",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "weight_id",
+          "dtype": "float"
+        },
+        {
+          "name": "weight_variable",
+          "dtype": "string"
+        },
+        {
+          "name": "matched_raw_column",
+          "dtype": "string"
+        },
+        {
+          "name": "component",
+          "dtype": "string"
+        },
+        {
+          "name": "family",
+          "dtype": "string"
+        },
+        {
+          "name": "position",
+          "dtype": "string"
+        },
+        {
+          "name": "unit",
+          "dtype": "string"
+        },
+        {
+          "name": "weight_raw",
+          "dtype": "float"
+        },
+        {
+          "name": "weight_normalized",
+          "dtype": "float"
+        },
+        {
+          "name": "orientation",
+          "dtype": "string"
+        },
+        {
+          "name": "v0",
+          "dtype": "float"
+        },
+        {
+          "name": "h",
+          "dtype": "float"
+        },
+        {
+          "name": "hh",
+          "dtype": "float"
+        },
+        {
+          "name": "threshold_method",
+          "dtype": "string"
+        }
+      ]
+    },
+    {
+      "filename": "dashboard_top_weighted_variables.csv",
+      "description": "Tabla exportada (dashboard_top_weighted_variables.csv).",
+      "pipeline_origin": "dashboard_exports",
+      "logical_key": "weight_variable",
+      "relationships": [],
+      "power_bi_usage": "Importar como texto/CSV; revisar tipos en Power Query.",
+      "warnings": [],
+      "status": "present",
+      "columns": [
+        {
+          "name": "weight_variable",
+          "dtype": "string"
+        },
+        {
+          "name": "matched_raw_column",
+          "dtype": "string"
+        },
+        {
+          "name": "component",
+          "dtype": "string"
+        },
+        {
+          "name": "family",
+          "dtype": "string"
+        },
+        {
+          "name": "position",
+          "dtype": "string"
+        },
+        {
+          "name": "weight_raw",
+          "dtype": "float"
+        },
+        {
+          "name": "weight_normalized",
+          "dtype": "float"
+        },
+        {
+          "name": "share_percent",
+          "dtype": "float"
+        }
+      ]
+    }
+  ]
+}

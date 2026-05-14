@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BPC Clasificación — Dashboard estático</title>
+  <link rel="stylesheet" href="./assets/style.css" />
+</head>
+<body>
+  <div id="error-banner" class="error-banner hidden" role="alert"></div>
+  <main class="container">
+    <header class="page-header">
+      <h1>BPC Clasificación — Estado actual del activo</h1>
+      <p class="subtitle">Dashboard estático exploratorio para GitHub Pages</p>
+      <p id="state-timestamp" class="meta-line"></p>
+      <p class="note-inline">
+        Datos generados por el pipeline local y publicados como archivos estáticos.
+      </p>
+    </header>
+
+    <section class="section" aria-labelledby="kpi-heading">
+      <h2 id="kpi-heading">Indicadores principales</h2>
+      <div id="kpi-grid" class="kpi-grid"></div>
+    </section>
+
+    <section class="section" aria-labelledby="window-heading">
+      <h2 id="window-heading">Ventana actual</h2>
+      <div id="current-window-block" class="info-grid"></div>
+    </section>
+
+    <section class="section" aria-labelledby="sem-heading">
+      <h2 id="sem-heading">Índice de condición (bandas exploratorias)</h2>
+      <p class="note-inline">
+        Bandas orientativas sobre <strong>condition_index</strong>: normal &lt; 50;
+        atención 50 a &lt; 80; alto ≥ 80. Son exploratorias y <strong>no normativas</strong>.
+      </p>
+      <div id="semaphore-block" class="semaphore"></div>
+    </section>
+
+    <section class="section" aria-labelledby="alerts-heading">
+      <h2 id="alerts-heading">Alertas activas</h2>
+      <div id="alerts-container"></div>
+    </section>
+
+    <section class="section" aria-labelledby="contrib-heading">
+      <h2 id="contrib-heading">Principales contribuyentes al índice</h2>
+      <div id="contributors-container"></div>
+    </section>
+
+    <section class="section" aria-labelledby="trend-heading">
+      <h2 id="trend-heading">Tendencia</h2>
+      <div id="trend-container"></div>
+    </section>
+
+    <footer class="method-footer section">
+      <h2>Nota metodológica</h2>
+      <p id="method-en" class="method-text"></p>
+      <p class="method-text">
+        Los índices, bandas y alertas de este dashboard son exploratorios.
+        No constituyen diagnóstico normativo de falla ni reemplazan criterios de
+        mantenimiento validados por ingeniería.
+      </p>
+    </footer>
+  </main>
+  <script src="./assets/app.js"></script>
+</body>
+</html>

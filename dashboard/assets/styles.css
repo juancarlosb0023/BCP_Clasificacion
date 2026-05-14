@@ -1,0 +1,143 @@
+/* Dashboard Proyecto 4 BPC — estilo sobrio */
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background-color: #f5f6f8;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.dash-app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 2rem;
+}
+
+.app-header {
+  border-bottom: 1px solid #d9dce2;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.app-header h1 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem 0;
+}
+
+.app-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.alert-critical {
+  background: #fde8e8;
+  border: 1px solid #e85d5d;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.alert-warn {
+  background: #fff8e6;
+  border: 1px solid #e6c200;
+  border-radius: 6px;
+  padding: 0.65rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.88rem;
+}
+
+.json-preview {
+  max-height: 420px;
+  overflow: auto;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  background: #fff;
+  border: 1px solid #e2e4e9;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin: 0.35rem 0 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.kpi-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin: 1rem 0;
+}
+
+.kpi-card {
+  background: #fff;
+  border: 1px solid #e2e4e9;
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  min-width: 120px;
+  flex: 1 1 140px;
+}
+
+.kpi-card .label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #666;
+}
+
+.kpi-card .value {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-top: 0.2rem;
+  word-break: break-word;
+}
+
+.tab-panel {
+  background: #fff;
+  border: 1px solid #e2e4e9;
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  margin-top: 0.5rem;
+}
+
+.tab-panel h3 {
+  font-size: 1rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.tab-panel .note {
+  font-size: 0.85rem;
+  color: #444;
+  line-height: 1.45;
+  margin-bottom: 1rem;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.filter-row label {
+  font-size: 0.8rem;
+  color: #555;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* Controles V0/H/HH: separar del grafico y priorizar menu desplegable */
+.var-thresh-controls {
+  margin-bottom: 1.75rem;
+  padding-bottom: 0.5rem;
+  position: relative;
+  z-index: 20;
+  min-height: 5.5rem;
+}
+
+.var-thresh-graph-wrap {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.25rem;
+  padding-top: 0.25rem;
+}

@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+.env
+desktop.ini
+.DS_Store
+outputs/
+data/processed/
+data/dashboard/
