@@ -3067,6 +3067,7 @@ app = Dash(
 )
 app.title = f"Proyecto 4 BPC — Dashboard v{DASHBOARD_APP_VERSION}"
 app.server.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
+server = app.server
 
 
 @app.server.after_request
@@ -3290,7 +3291,13 @@ if __name__ == "__main__":
         print("[10d operational]", msg)
     if not (DATA.get("_operational_10d_warnings") or []):
         print("[10d operational] OK: baseline operacional y umbrales listos para graficos dinamicos.")
-    port = int(os.environ.get("DASH_PORT", "8050"))
-    print(f"Abrir: http://127.0.0.1:{port}/  (si 8050 sirve codigo viejo, otro proceso lo ocupa: DASH_PORT=8051 python dashboard/app.py)")
+    port_env = os.environ.get("PORT")
+    if port_env is not None:
+        host = "0.0.0.0"
+        port = int(port_env)
+    else:
+        host = "127.0.0.1"
+        port = int(os.environ.get("DASH_PORT", "8050"))
+    print(f"Abrir: http://{host}:{port}/  (local: si 8050 esta ocupado, use DASH_PORT=8051 python dashboard/app.py)")
     print(f"Version app.py (mtime UTC): {DASH_APP_BUILD} | datos cargados: {DATA_LOADED_AT} | app v{DASHBOARD_APP_VERSION}")
-    app.run(debug=False, host="127.0.0.1", port=port)
+    app.run(debug=False, host=host, port=port)

@@ -8,6 +8,7 @@ matplotlib
 seaborn
 plotly
 dash
+gunicorn
 joblib
 openpyxl
 imbalanced-learn
