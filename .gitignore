@@ -8,4 +8,4 @@ desktop.ini
 .DS_Store
 outputs/
 data/processed/
-data/dashboard/
+# Incluir data/dashboard/ en git para Dash en Render y para GitHub Pages (exportar con dashboard_exports).

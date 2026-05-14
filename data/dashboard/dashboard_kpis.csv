@@ -1,0 +1,73 @@
+metric,value,category,description
+n_rows_raw,88121,calidad,Filas en serie cruda
+n_features_raw,24,calidad,Columnas de sensores numericos en crudo
+n_missing_values_total,0,calidad,Suma de missing por columna (quality)
+n_timestamp_gaps,0,calidad,Filas en timestamp_gaps
+n_batch_transitions,6,calidad,Transiciones de Batch detectadas
+n_windows_total,1466,ventaneo,Ventanas despues de filtros de ventaneo
+n_windows_modeling,1451.0,ventaneo,Ventanas usadas en modelado (sin transicion)
+n_transition_windows_excluded,15.0,ventaneo,Ventanas excluidas por proximidad a transicion
+n_model_features,120,ventaneo,Features numericas por ventana para ML
+permanova_r2,0.2758498695429676,estadistica,PERMANOVA R2 sobre ventanas
+permanova_p_value,0.001,estadistica,PERMANOVA p-value
+permdisp_F,26.93415084384733,estadistica,PERMDISP F
+permdisp_p_value,0.001,estadistica,PERMDISP p-value
+pca_explained_variance_PC1,0.3736375355475179,estadistica,Varianza explicada PC1
+pca_explained_variance_PC2,0.1388105436950753,estadistica,Varianza explicada PC2
+best_model_name,xgboost,modelo,Modelo seleccionado por metrica primaria
+best_model_f1_macro_cv,0.935742837859186,modelo,F1 macro promedio en CV (comparativa)
+best_model_balanced_accuracy_cv,0.9345908484289832,modelo,Balanced accuracy promedio en CV
+best_model_accuracy_cv,0.937554948269234,modelo,Accuracy CV mejor modelo
+best_model_mcc_cv,0.908528636499934,modelo,MCC CV mejor modelo
+best_model_kappa_cv,0.902134311443481,modelo,Kappa CV mejor modelo
+training_f1_macro,1.0,modelo_final,F1 macro en entrenamiento final
+training_balanced_accuracy,1.0,modelo_final,Balanced accuracy entrenamiento final
+mean_confidence,0.99860155533134,modelo_final,Confianza media prediccion final
+median_confidence,0.9995805621147156,modelo_final,Confianza mediana prediccion final
+best_feature_consolidated,LA BOMBA\AC LA A BOMBA\Aceleración Rms [g]__mean,interpretabilidad,Mejor feature consolidada
+best_feature_raw_variable,LA BOMBA\AC LA A BOMBA\Aceleración Rms [g],interpretabilidad,Variable raw de mejor feature
+top_raw_variable,LA MOTOR\AC LA H MOTOR\Aceleración Rms [g],interpretabilidad,Top variable raw agregada
+top_component,bomba,interpretabilidad,Top componente
+top_family,acceleration_rms,interpretabilidad,Top familia
+top_position,la,interpretabilidad,Top posicion
+top_statistic,p95,interpretabilidad,Top estadistico
+shap_status,ok,interpretabilidad,Estado SHAP
+n_weights_mapped,24,assessment,Pesos mapeados a columnas
+n_weights_unmatched,0,assessment,Pesos sin match
+median_available_weight,1.0000000000000002,assessment,Peso disponible mediano en indice
+condition_index_mean,25.94305524180052,assessment,Indice de condicion medio
+condition_index_median,25.32661780783169,assessment,Indice de condicion mediano
+condition_index_p95,35.09593002396289,assessment,Indice de condicion p95
+assessment_method,robust_percentile_fallback,assessment,Metodo dominante en assessment
+n_variables_thresholded,24.0,assessment_thresholds,Variables con umbrales V0/H/HH estimados
+n_batches_thresholded,3.0,assessment_thresholds,Batches con umbrales por batch
+n_thresholds_global_rows,24.0,assessment_thresholds,Filas en umbrales globales (24 variables)
+n_thresholds_by_batch_rows,72.0,assessment_thresholds,Filas en umbrales por batch (24x3)
+n_threshold_warnings_global,0.0,assessment_thresholds,Advertencias de ajuste epsilon (global)
+n_threshold_warnings_by_batch,0.0,assessment_thresholds,Advertencias de ajuste epsilon (por batch)
+threshold_method_global,global_percentile_p05_p95_p99,assessment_thresholds,Metodo estimacion umbrales globales (percentiles)
+threshold_method_by_batch,batch_percentile_p05_p95_p99,assessment_thresholds,Metodo estimacion umbrales por batch (percentiles)
+condition_index_mean_thresholded_global,27.130567458000026,assessment_thresholds,Media indice con umbrales globales (exploratorio)
+condition_index_median_thresholded_global,26.68476225987503,assessment_thresholds,Mediana indice umbrales globales
+condition_index_p95_thresholded_global,37.58752993196102,assessment_thresholds,P95 indice umbrales globales
+condition_index_min_thresholded_global,7.109006655776157,assessment_thresholds,Minimo indice umbrales globales
+condition_index_max_thresholded_global,53.97462954679174,assessment_thresholds,Maximo indice umbrales globales
+condition_index_mean_thresholded_by_batch,27.50529262273688,assessment_thresholds,Media indice con baseline por batch
+condition_index_median_thresholded_by_batch,29.76718261164148,assessment_thresholds,Mediana indice baseline por batch
+condition_index_p95_thresholded_by_batch,37.35337805571635,assessment_thresholds,P95 indice baseline por batch
+condition_index_min_thresholded_by_batch,4.6326532041897215,assessment_thresholds,Minimo indice baseline por batch
+condition_index_max_thresholded_by_batch,49.2427594322527,assessment_thresholds,Maximo indice baseline por batch
+threshold_note,Exploratory thresholds estimated from available historical windowed data; not normative alarm limits.,assessment_thresholds,"Nota metodologica: umbrales exploratorios, no normativos"
+current_window_id,1468,condition_state,Ultima ventana historica en condition_state (Etapa 8C)
+current_batch_real,RUBIALES,condition_state,Batch real de la ultima ventana
+current_batch_predicted,RUBIALES,condition_state,Clase predicha para la ultima ventana (modelo final)
+current_classification_confidence,0.999450981616974,condition_state,Confianza de clasificacion en la ultima ventana
+current_condition_index,27.31850076540609,condition_state,"Indice de condicion (baseline por batch, exploratorio)"
+current_health_index,72.68149923459391,condition_state,health_index = 100 - condition_index (exploratorio)
+current_condition_state,normal,condition_state,"Banda visual: normal <50, attention 50-80, high >=80 (no normativa)"
+current_trend_direction,decreasing,condition_state,"Tendencia reciente del indice (ultimas 60 ventanas, exploratorio)"
+n_active_attention_alerts,1,condition_state,Alertas exploratorias nivel attention en ultima ventana exportada
+n_active_high_alerts,0,condition_state,Alertas exploratorias nivel high en ultima ventana exportada
+top_condition_component,motor,condition_state,Componente con mayor contribucion ponderada en la ultima ventana exportada.
+top_condition_family,displacement_pp,condition_state,Familia con mayor weighted_score en ultima ventana
+top_condition_variable,LA MOTOR\AC LA H MOTOR\Aceleración Rms [g],condition_state,Variable raw con mayor weighted_score en ultima ventana

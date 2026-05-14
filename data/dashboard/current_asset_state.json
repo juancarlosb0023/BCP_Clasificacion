@@ -1,0 +1,113 @@
+{
+  "asset_id": "BPC_ESTACION_BOMBEO",
+  "state_timestamp": "2026-05-14T19:10:16.501341+00:00",
+  "current_window": {
+    "window_id": 1468,
+    "window_start": "2025-12-11 19:05:32",
+    "window_end": "2025-12-11 19:06:12"
+  },
+  "batch_real": "RUBIALES",
+  "batch_predicted": "RUBIALES",
+  "classification_confidence": 0.999450981616974,
+  "classification_margin_top2": 0.9991061687469482,
+  "baseline_used": "RUBIALES",
+  "condition_index": 27.31850076540609,
+  "health_index": 72.68149923459391,
+  "condition_state": "normal",
+  "assessment_method": "data_driven_batch_percentile_thresholds",
+  "top_condition_drivers": [
+    {
+      "window_id": 1468,
+      "rank": 1,
+      "raw_variable": "LA MOTOR\\AC LA H MOTOR\\Aceleración Rms [g]",
+      "component": "motor",
+      "family": "acceleration_rms",
+      "position": "la",
+      "condition_score": 50.591156360748975,
+      "weight_normalized": 0.0476190476190476,
+      "weighted_score": 2.4091026838451883,
+      "share_of_condition_index_percent": 8.818575750305742
+    },
+    {
+      "window_id": 1468,
+      "rank": 2,
+      "raw_variable": "LA BOMBA\\VIX3-74442\\Desplazamiento Pico a Pico [µm]",
+      "component": "bomba",
+      "family": "displacement_pp",
+      "position": "la",
+      "condition_score": 42.37400401733153,
+      "weight_normalized": 0.050125313283208,
+      "weighted_score": 2.1240102264326572,
+      "share_of_condition_index_percent": 7.7749882567579665
+    },
+    {
+      "window_id": 1468,
+      "rank": 3,
+      "raw_variable": "LL BOMBA\\VIX4-74443\\Desplazamiento Pico a Pico [µm]",
+      "component": "bomba",
+      "family": "displacement_pp",
+      "position": "ll",
+      "condition_score": 45.92409452033078,
+      "weight_normalized": 0.0401002506265664,
+      "weighted_score": 1.841567700063389,
+      "share_of_condition_index_percent": 6.741100896705871
+    },
+    {
+      "window_id": 1468,
+      "rank": 4,
+      "raw_variable": "LA MOTOR\\AC LA H MOTOR\\Velocidad Rms [mm/s]",
+      "component": "motor",
+      "family": "velocity_rms",
+      "position": "la",
+      "condition_score": 45.23295465697208,
+      "weight_normalized": 0.0401002506265664,
+      "weighted_score": 1.8138528183246942,
+      "share_of_condition_index_percent": 6.639649935041859
+    },
+    {
+      "window_id": 1468,
+      "rank": 5,
+      "raw_variable": "LL MOTOR\\AC LL H MOTOR\\Velocidad Rms [mm/s]",
+      "component": "motor",
+      "family": "velocity_rms",
+      "position": "ll",
+      "condition_score": 49.48433174067166,
+      "weight_normalized": 0.0350877192982456,
+      "weighted_score": 1.736292341777952,
+      "share_of_condition_index_percent": 6.355738027822711
+    }
+  ],
+  "alerts_active": [
+    {
+      "alert_id": "ALT-01468-001",
+      "window_id": 1468,
+      "raw_variable": "LA MOTOR\\AC LA H MOTOR\\Aceleración Rms [g]",
+      "component": "motor",
+      "family": "acceleration_rms",
+      "position": "la",
+      "unit": "g",
+      "condition_score": 50.591156360748975,
+      "weighted_score": 2.4091026838451883,
+      "alert_level": "attention",
+      "persisted_last_n_windows": false,
+      "persistence_count": 1,
+      "baseline_batch_used": "RUBIALES",
+      "assessment_method": "data_driven_batch_percentile_thresholds",
+      "note": "Exploratory alert from percentile-based condition score; not a normative alarm."
+    }
+  ],
+  "trend": {
+    "n_windows_used": 60,
+    "first_window_id": 1409,
+    "last_window_id": 1468,
+    "condition_index_first": 33.43403893862615,
+    "condition_index_last": 27.31850076540609,
+    "condition_index_delta": -6.115538173220063,
+    "slope_per_window": -0.07160049021246824,
+    "slope_per_hour": -4.296029412748094,
+    "rolling_mean_last": 31.315254461504946,
+    "rolling_mean_previous": 34.275993579873685,
+    "trend_direction": "decreasing"
+  },
+  "methodological_note": "Exploratory condition assessment based on data-driven percentile thresholds; not a normative fault diagnosis."
+}

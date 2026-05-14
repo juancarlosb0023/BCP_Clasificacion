@@ -1,0 +1,25 @@
+weight_variable,matched_raw_column,component,family,position,weight_raw,weight_normalized,share_percent
+Aceleración RMS — LA Bomba Axial [g],LA BOMBA\AC LA A BOMBA\Aceleración Rms [g],bomba,acceleration_rms,la,4.8,0.0601503759398496,6.015037593984962
+Aceleración RMS — LA Bomba Horizontal [g],LA BOMBA\AC LA H BOMBA\Aceleración Rms [g],bomba,acceleration_rms,la,4.8,0.0601503759398496,6.015037593984962
+Desplazamiento Pico a Pico VIY3 — LA Bomba [µm],LA BOMBA\VIY3-74441\Desplazamiento Pico a Pico [µm],bomba,displacement_pp,la,4.0,0.050125313283208,5.012531328320803
+Desplazamiento Pico a Pico VIX3 — LA Bomba [µm],LA BOMBA\VIX3-74442\Desplazamiento Pico a Pico [µm],bomba,displacement_pp,la,4.0,0.050125313283208,5.012531328320803
+Aceleración RMS — LA Motor Axial [g],LA MOTOR\AC LA A MOTOR\Aceleración Rms [g],motor,acceleration_rms,la,3.8,0.0476190476190476,4.761904761904762
+Aceleración RMS — LA Motor Horizontal [g],LA MOTOR\AC LA H MOTOR\Aceleración Rms [g],motor,acceleration_rms,la,3.8,0.0476190476190476,4.761904761904762
+Velocidad RMS — LA Bomba Horizontal [mm/s],LA BOMBA\AC LA H BOMBA\Velocidad Rms [mm/s],bomba,velocity_rms,la,3.8,0.0476190476190476,4.761904761904762
+Velocidad RMS — LA Bomba Axial [mm/s],LA BOMBA\AC LA A BOMBA\Velocidad Rms [mm/s],bomba,velocity_rms,la,3.8,0.0476190476190476,4.761904761904762
+Aceleración RMS — LL Bomba Horizontal [g],LL BOMBA\AC LL H BOMBA\Aceleración Rms [g],bomba,acceleration_rms,ll,3.8,0.0476190476190476,4.761904761904762
+Aceleración RMS — LL Motor Horizontal [g],LL MOTOR\AC LL H MOTOR\Aceleración Rms [g],motor,acceleration_rms,ll,3.2,0.0401002506265664,4.010025062656642
+Velocidad RMS — LA Motor Horizontal [mm/s],LA MOTOR\AC LA H MOTOR\Velocidad Rms [mm/s],motor,velocity_rms,la,3.2,0.0401002506265664,4.010025062656642
+Desplazamiento Pico a Pico VIX4 — LL Bomba [µm],LL BOMBA\VIX4-74443\Desplazamiento Pico a Pico [µm],bomba,displacement_pp,ll,3.2,0.0401002506265664,4.010025062656642
+Desplazamiento Pico a Pico VIX2 — LA Motor [µm],LA MOTOR\VIX2-74445\Desplazamiento Pico a Pico [µm],motor,displacement_pp,la,3.2,0.0401002506265664,4.010025062656642
+Desplazamiento Pico a Pico VIY2 — LA Motor [µm],LA MOTOR\VIY2-74446\Desplazamiento Pico a Pico [µm],motor,displacement_pp,la,3.2,0.0401002506265664,4.010025062656642
+Desplazamiento Pico a Pico VIY4 — LL Bomba [µm],LL BOMBA\VIY4-74444\Desplazamiento Pico a Pico [µm],bomba,displacement_pp,ll,3.2,0.0401002506265664,4.010025062656642
+Velocidad RMS — LA Motor Axial [mm/s],LA MOTOR\AC LA A MOTOR\Velocidad Rms [mm/s],motor,velocity_rms,la,3.2,0.0401002506265664,4.010025062656642
+Velocidad RMS — LL Bomba Horizontal [mm/s],LL BOMBA\AC LL H BOMBA\Velocidad Rms [mm/s],bomba,velocity_rms,ll,3.2,0.0401002506265664,4.010025062656642
+Desplazamiento Pico a Pico VIX1 — LL Motor [µm],LL MOTOR\VIX1-74447\Desplazamiento Pico a Pico [µm],motor,displacement_pp,ll,3.0,0.037593984962406,3.759398496240601
+Desplazamiento Pico a Pico VIY1 — LL Motor [µm],LL MOTOR\VIY1-74448\Desplazamiento Pico a Pico [µm],motor,displacement_pp,ll,3.0,0.037593984962406,3.759398496240601
+Velocidad RMS — LL Motor Horizontal [mm/s],LL MOTOR\AC LL H MOTOR\Velocidad Rms [mm/s],motor,velocity_rms,ll,2.8,0.0350877192982456,3.508771929824561
+Aceleración RMS — LB Variador Horizontal [g],LB VARIADOR\AC LB H VARIADOR\Aceleración Rms [g],variador,acceleration_rms,lb,2.4,0.0300751879699248,3.007518796992481
+Aceleración RMS — LM Variador Horizontal [g],LM VARIADOR\AC LM H VARIADOR\Aceleración Rms [g],variador,acceleration_rms,lm,2.4,0.0300751879699248,3.007518796992481
+Velocidad RMS — LB Variador Horizontal [mm/s],LB VARIADOR\AC LB H VARIADOR\Velocidad Rms [mm/s],variador,velocity_rms,lb,2.0,0.025062656641604,2.5062656641604013
+Velocidad RMS — LM Variador Horizontal [mm/s],LM VARIADOR\AC LM H VARIADOR\Velocidad Rms [mm/s],variador,velocity_rms,lm,2.0,0.025062656641604,2.5062656641604013

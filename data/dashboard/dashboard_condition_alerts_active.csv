@@ -1,0 +1,2 @@
+alert_id,window_id,raw_variable,component,family,position,unit,condition_score,weighted_score,alert_level,persisted_last_n_windows,persistence_count,baseline_batch_used,assessment_method,note
+ALT-01468-001,1468,LA MOTOR\AC LA H MOTOR\Aceleración Rms [g],motor,acceleration_rms,la,g,50.591156360748975,2.4091026838451883,attention,False,1,RUBIALES,data_driven_batch_percentile_thresholds,Exploratory alert from percentile-based condition score; not a normative alarm.
