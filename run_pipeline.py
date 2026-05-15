@@ -1222,8 +1222,8 @@ def _run_dashboard_exports() -> None:
         print(f"  data/dashboard/{name}")
     print(f"Mejor modelo: {_ascii_console(str(info['best_model_name']))}")
     print(f"F1 macro CV: {round(float(info['f1_macro_cv']), 6)}")
-    print(f"Balanced accuracy CV: {round(float(info['balanced_accuracy_cv']), 6)}")
-    print(f"PERMANOVA R2: {round(float(info['permanova_r2']), 6)}")
+    print(f"Exactitud balanceada CV: {round(float(info['balanced_accuracy_cv']), 6)}")
+    print(f"PERMANOVA R\u00b2: {round(float(info['permanova_r2']), 6)}")
     print(f"Top componente interpretabilidad: {_ascii_console(str(info['top_component']))}")
     print(f"Top familia interpretabilidad: {_ascii_console(str(info['top_family']))}")
     if info.get("condition_index_mean") is not None:

@@ -30,7 +30,7 @@ except OSError:
     DASH_APP_BUILD = "?"
 
 # Version semantica del dashboard Dash (incrementar manualmente al publicar cambios de UI o logica).
-DASHBOARD_APP_VERSION = "1.4.17"
+DASHBOARD_APP_VERSION = "1.4.21"
 
 CRITICAL_FILES = (
     "dashboard_kpis.csv",
@@ -74,6 +74,66 @@ CLASS_COLORS = {
     "MEZCLA": "#9467bd",
     "RUBIALES": "#17becf",
 }
+
+# Etiquetas visibles para columnas tecnicas (id de columna = clave interna sin cambiar).
+MODEL_METRICS_COLUMN_LABELS: dict[str, str] = {
+    "model_name": "Modelo",
+    "accuracy_mean": "Exactitud (media CV)",
+    "accuracy_std": "Exactitud (desv. CV)",
+    "balanced_accuracy_mean": "Exactitud balanceada (media CV)",
+    "balanced_accuracy_std": "Exactitud balanceada (desv. CV)",
+    "f1_macro_mean": "F1 macro (media CV)",
+    "f1_macro_std": "F1 macro (desv. CV)",
+    "precision_macro_mean": "Precision macro (media CV)",
+    "recall_macro_mean": "Exhaustividad macro (media CV)",
+    "mcc_mean": "MCC (media CV)",
+    "cohen_kappa_mean": "Kappa Cohen (media CV)",
+}
+
+PREDICTION_TABLE_COLUMN_LABELS: dict[str, str] = {
+    "window_id": "ID ventana",
+    "window_start": "Inicio ventana",
+    "Batch": "Batch real",
+    "y_true_label": "Clase real",
+    "y_pred_label": "Clase predicha",
+    "prob_CASTILLA": "Prob. CASTILLA",
+    "prob_MEZCLA": "Prob. MEZCLA",
+    "prob_RUBIALES": "Prob. RUBIALES",
+    "confidence": "Confianza del clasificador",
+    "margin_top2": "Margen entre las dos clases mas probables",
+    "is_correct": "Prediccion correcta",
+    "condition_index": "Indice de condicion",
+    "condition_index_thresholded_global": "Indice condicion (umbral global)",
+    "condition_index_thresholded_by_batch": "Indice condicion (umbral por batch)",
+    "baseline_batch_used": "Linea base usada",
+    "health_index_thresholded_by_batch": "Salud relativa por batch (CSV)",
+    "baseline_batch_operational": "Linea base operacional (predicha)",
+    "baseline_status": "Estado linea base operacional",
+    "health_index_operational": "EPI / salud relativa (operacional)",
+    "condition_index_operational": "Severidad relativa (operacional)",
+}
+
+# Tooltips de cabecera (tabla de predicciones): id de columna -> texto corto.
+PREDICTION_TABLE_HEADER_TOOLTIPS: dict[str, str] = {
+    "confidence": "Probabilidad asignada por el clasificador a la clase predicha.",
+    "margin_top2": "Diferencia entre las dos probabilidades mas altas.",
+    "baseline_batch_operational": "Linea base seleccionada segun clase predicha y confianza.",
+    "baseline_batch_used": "Linea base historica asociada al batch real en el export.",
+    "baseline_status": "Indica si la linea base sigue al crudo predicho o a un fallback global.",
+    "health_index_operational": "100 - condition_index (EPI_BPC operacional con la linea base vigente).",
+    "condition_index_operational": "Severidad relativa 0-100 (operacional con la linea base vigente).",
+    "condition_index": "Severidad relativa 0-100.",
+    "health_index_thresholded_by_batch": "100 - condition_index segun exportacion CSV (umbral por batch).",
+    "weighted_score": "Aporte ponderado de una variable al indice de condicion.",
+}
+
+
+def _prediction_table_tooltip_header_for_datatable(cols: list[str]) -> dict[str, dict[str, str]]:
+    return {
+        c: {"value": PREDICTION_TABLE_HEADER_TOOLTIPS[c], "type": "text"}
+        for c in cols
+        if c in PREDICTION_TABLE_HEADER_TOOLTIPS
+    }
 
 
 def _hex_to_rgba(hex_color: str, alpha: float) -> str:
@@ -132,7 +192,7 @@ def _activo_kpi_card_style(label: str, display_val: str, raw_val: Any = None) ->
     lbl = str(label)
     vs = str(display_val).strip()
 
-    if lbl in ("Batch real", "Batch predicho"):
+    if lbl in ("Batch real", "Crudo predicho", "Batch predicho"):
         bn = vs.upper()
         c = CLASS_COLORS.get(bn, "#888888")
         return {
@@ -143,7 +203,7 @@ def _activo_kpi_card_style(label: str, display_val: str, raw_val: Any = None) ->
         }
 
     src = raw_val if raw_val is not None else vs
-    if lbl == "Confianza clasificacion":
+    if lbl == "Confianza del clasificador":
         v = _to_float(src)
         if v is None:
             return {**base, **_activo_sem_style("neutral")}
@@ -158,7 +218,7 @@ def _activo_kpi_card_style(label: str, display_val: str, raw_val: Any = None) ->
             lev = "red"
         return {**base, **_activo_sem_style(lev)}
 
-    if lbl == "Indice condicion":
+    if lbl in ("Indice de condicion", "Indice condicion"):
         v = _to_float(src)
         if v is None:
             return {**base, **_activo_sem_style("neutral")}
@@ -171,19 +231,19 @@ def _activo_kpi_card_style(label: str, display_val: str, raw_val: Any = None) ->
             lev = "red"
         return {**base, **_activo_sem_style(lev)}
 
-    if lbl == "Health index":
+    if lbl in ("EPI_BPC / salud relativa", "Health index"):
         v = _to_float(src)
         if v is None:
             return {**base, **_activo_sem_style("neutral")}
         if v >= 80:
             lev = "green"
-        elif v >= 50:
+        elif v >= 60:
             lev = "yellow"
         else:
             lev = "red"
         return {**base, **_activo_sem_style(lev)}
 
-    if lbl == "Banda condition_state":
+    if lbl in ("Banda condition_state", "Estado exploratorio"):
         s = vs.lower()
         if "normal" in s:
             lev = "green"
@@ -477,7 +537,7 @@ def collect_condition_state_warnings(data: dict[str, Any]) -> list[str]:
     missing_cs = [fn for fn in need if not (DASHBOARD_DATA / fn).is_file()]
     if missing_cs:
         w.append(
-            "Faltan artefactos de estado de condicion (Etapa 9C). Ejecute: "
+            "Faltan artefactos exportados de estado de condicion. Ejecute: "
             "python run_pipeline.py --stage condition_state  y luego  "
             "python run_pipeline.py --stage dashboard_exports"
         )
@@ -568,7 +628,7 @@ def collect_operational_10d_warnings(data: dict[str, Any], pred_op: pd.DataFrame
         "health_index_thresholded_by_batch",
     ):
         if pred.empty or col not in pred.columns:
-            w.append(f"Etapa 10D: dashboard_predictions requiere columna '{col}'.")
+            w.append(f"Predicciones operacionales: falta la columna '{col}' en dashboard_predictions.csv.")
     gl = data.get("ath_global", pd.DataFrame())
     bb = data.get("ath_by_batch", pd.DataFrame())
     if not gl.empty and len(gl) != 24:
@@ -578,12 +638,12 @@ def collect_operational_10d_warnings(data: dict[str, Any], pred_op: pd.DataFrame
     if pred_op.empty:
         return w
     if "baseline_batch_operational" in pred_op.columns and pred_op["baseline_batch_operational"].isna().any():
-        w.append("Etapa 10D: baseline_batch_operational contiene NaN.")
+        w.append("Linea base operacional: baseline_batch_operational contiene valores no definidos (NaN).")
     for c in ("health_index_operational", "condition_index_operational"):
         if c in pred_op.columns:
             s = pd.to_numeric(pred_op[c], errors="coerce")
             if s.notna().any() and (s.min() < -1e-6 or s.max() > 100.0 + 1e-6):
-                w.append(f"Etapa 10D: {c} fuera de rango [0,100].")
+                w.append(f"Linea base operacional: la columna {c} tiene valores fuera de rango [0,100].")
     return w
 
 
@@ -691,12 +751,12 @@ def kpi_cards(kpis: pd.DataFrame) -> html.Div:
         ("n_rows_raw", "Filas crudas"),
         ("n_windows_total", "Ventanas totales"),
         ("n_windows_modeling", "Ventanas modelado"),
-        ("best_model_name", "Mejor modelo"),
+        ("best_model_name", "Modelo seleccionado"),
         ("best_model_f1_macro_cv", "F1 macro (CV)"),
-        ("best_model_balanced_accuracy_cv", "Bal. acc. (CV)"),
-        ("permanova_r2", "PERMANOVA R2"),
-        ("top_component", "Top componente"),
-        ("top_family", "Top familia"),
+        ("best_model_balanced_accuracy_cv", "Exactitud balanceada (CV)"),
+        ("permanova_r2", "PERMANOVA R\u00b2"),
+        ("top_component", "Top componente (interpretabilidad)"),
+        ("top_family", "Top familia (interpretabilidad)"),
         ("condition_index_mean", "Indice condicion (media)"),
         ("assessment_method", "Metodo assessment"),
     ]
@@ -744,16 +804,19 @@ def kpi_cards_threshold(kpis: pd.DataFrame) -> html.Div:
 def kpi_cards_condition_state(kpis: pd.DataFrame) -> html.Div:
     """KPIs categoria condition_state (Etapa 9C); mismos colores que estado del activo en Assessment."""
     keys = [
-        ("current_window_id", "Ventana actual (id)"),
+        ("current_window_id", "Ultima ventana historica exportada"),
         ("current_batch_real", "Batch real"),
-        ("current_batch_predicted", "Batch predicho"),
-        ("current_classification_confidence", "Confianza clasificacion"),
-        ("current_condition_index", "Indice condicion"),
-        ("current_health_index", "Health index"),
-        ("current_condition_state", "Banda condition_state"),
+        ("current_batch_predicted", "Crudo predicho"),
+        ("current_classification_confidence", "Confianza del clasificador"),
+        ("current_condition_index", "Indice de condicion"),
+        ("current_health_index", "EPI_BPC / salud relativa"),
+        ("current_condition_state", "Estado exploratorio"),
         ("current_trend_direction", "Tendencia reciente"),
         ("n_active_attention_alerts", "Alertas exploratorias attention"),
         ("n_active_high_alerts", "Alertas exploratorias high"),
+        ("top_condition_variable", "Variable principal de condicion"),
+        ("top_condition_family", "Familia destacada (resumen KPI)"),
+        ("top_condition_component", "Componente destacado (resumen KPI)"),
     ]
     cards = []
     for key, label in keys:
@@ -814,7 +877,7 @@ def build_alerts() -> list:
         out.append(
             html.Div(
                 [
-                    html.Strong("Estado de condicion / Etapa 10C (no bloqueante)."),
+                    html.Strong("Estado de condicion exportado (avisos de datos, no bloqueante)."),
                     html.Ul([html.Li(x) for x in csw]),
                 ],
                 className="alert-warn",
@@ -825,7 +888,7 @@ def build_alerts() -> list:
         out.append(
             html.Div(
                 [
-                    html.Strong("Bandas dinamicas / Etapa 10D (no bloqueante)."),
+                    html.Strong("Indices operacionales y linea base predicha (avisos de datos, no bloqueante)."),
                     html.Ul([html.Li(x) for x in ow]),
                 ],
                 className="alert-warn",
@@ -841,6 +904,12 @@ def tab_resumen() -> html.Div:
     best = str(kpi_lookup(kpis, "best_model_name") or "xgboost")
     children: list = [
         html.H3("Resumen ejecutivo"),
+        html.P(
+            "Este resumen integra tres lecturas: clasificacion del crudo trasegado, desempeno del modelo y condicion relativa del activo. "
+            "El estado mostrado corresponde a la ultima ventana historica exportada, no a una lectura en vivo.",
+            className="note",
+            style={"marginBottom": "0.75rem"},
+        ),
         html.Div(
             [
                 html.Img(
@@ -854,16 +923,32 @@ def tab_resumen() -> html.Div:
         ),
         kpi_cards(kpis),
         kpi_cards_threshold(kpis),
-        html.H4("Estado de condicion (ultima ventana historica exportada)"),
+        html.H4("Estado exploratorio (ultima ventana historica exportada)"),
         kpi_cards_condition_state(kpis),
+        html.P(
+            "La variable principal de condicion y la familia destacada en el KPI son agregados del resumen exportado; "
+            "pueden diferir del primer driver en JSON por reglas de agregacion distintas.",
+            className="note",
+            style={"fontSize": "0.85rem", "marginTop": "0.35rem"},
+        ),
     ]
     pred_op_rs = DATA.get("predictions_operational", pd.DataFrame())
     if not pred_op_rs.empty and _epi_bpc_y_column(pred_op_rs) is not None:
         children.extend(
             [
-                html.H4("EPI_BPC — resumen gerencial"),
+                html.H4("EPI_BPC — salud relativa (resumen)"),
                 html.P(
-                    "Misma serie que en Assessment (health operacional si aplica; bandas visuales exploratorias, no normativas).",
+                    "EPI_BPC = 100 - condition_index. Valores altos indican mejor condicion relativa frente a la linea base seleccionada; "
+                    "valores bajos de EPI corresponden a mayor severidad relativa (mayor condition_index).",
+                    className="note",
+                ),
+                html.P(
+                    "El EPI_BPC usa la linea base del crudo predicho cuando la confianza del modelo es suficiente "
+                    "(compuerta exploratoria en la app); si no, se usa baseline global o se marca el assessment como incierto.",
+                    className="note",
+                ),
+                html.P(
+                    "Misma serie que en Assessment (salud operacional si aplica; bandas visuales exploratorias, no normativas).",
                     className="note",
                 ),
                 dcc.Graph(figure=fig_epi_bpc_picadora_style(pred_op_rs)),
@@ -885,17 +970,17 @@ def tab_resumen() -> html.Div:
         html.Div(
             [
                 html.P(
-                    f"El modelo seleccionado en la comparativa es {best}. "
-                    "Las metricas de generalizacion mostradas como F1 macro y balanced accuracy "
+                    f"Modelo seleccionado (segun KPI exportados): {best}. "
+                    "Las metricas de generalizacion mostradas como F1 macro y exactitud balanceada "
                     "provienen de validacion cruzada temporal, no del ajuste final sobre todo el conjunto."
                 ),
                 html.P(
-                    "El batch (CASTILLA, MEZCLA, RUBIALES) modifica la firma vibratoria observada en ventanas."
+                    "Los batches CASTILLA, MEZCLA y RUBIALES son etiquetas operacionales; cada uno se asocia a una firma vibratoria distinta en ventanas."
                 ),
                 html.P(
                     "En la pestaña Predicciones, la serie temporal de indices superpuestos muestra por defecto "
-                    "threshold por batch (condition_index_thresholded_by_batch) y health index por batch. "
-                    "Los umbrales V0/H/HH son exploratorios, estimados por percentiles P40/P75/P99, "
+                    "severidad con umbral por batch y EPI / salud relativa por batch. "
+                    "Los umbrales V0/H/HH son exploratorios, estimados como P40/P75/P99, "
                     "y no constituyen limites normativos de alarma."
                 ),
                 html.P(
@@ -903,7 +988,7 @@ def tab_resumen() -> html.Div:
                     "umbrales data-driven cuando los CSV correspondientes estan disponibles."
                 ),
                 html.P(
-                    "Los pesos ponderados evaluan condicion del activo; no representan importancia ML."
+                    "Los pesos ponderados describen contribucion al indice de condicion; no representan importancia ML del clasificador."
                 ),
             ],
             className="note",
@@ -920,7 +1005,7 @@ def tab_resumen() -> html.Div:
             vc_plot,
             x="Batch",
             y="n_windows",
-            title="Ventanas por Batch (predicciones finales)",
+            title="Ventanas por batch (predicciones exportadas)",
             color="Batch",
             color_discrete_map={k: CLASS_COLORS[k] for k in CLASS_ORDER},
         )
@@ -945,7 +1030,7 @@ def tab_resumen() -> html.Div:
             cb_plot,
             x="Batch",
             y="condition_index_mean",
-            title="Indice de condicion medio por Batch",
+            title="Indice de condicion medio por batch",
             color="Batch",
             color_discrete_map={k: CLASS_COLORS[k] for k in CLASS_ORDER},
         )
@@ -980,7 +1065,7 @@ def tab_modelo() -> html.Div:
         x="f1_macro_mean",
         y="model_name",
         orientation="h",
-        title="F1 macro medio (CV) por modelo",
+        title="F1 macro en validacion cruzada temporal",
     )
     fig_f1.update_layout(
         paper_bgcolor="white",
@@ -1000,7 +1085,7 @@ def tab_modelo() -> html.Div:
         x="balanced_accuracy_mean",
         y="model_name",
         orientation="h",
-        title="Balanced accuracy medio (CV) por modelo",
+        title="Exactitud balanceada en validacion cruzada temporal",
     )
     fig_ba.update_layout(
         paper_bgcolor="white",
@@ -1013,7 +1098,7 @@ def tab_modelo() -> html.Div:
             ),
         ),
     )
-    fig_ba.update_traces(hovertemplate="%{y}<br>Balanced acc.=%{x:.2f}<extra></extra>")
+    fig_ba.update_traces(hovertemplate="%{y}<br>Exactitud balanceada=%{x:.2f}<extra></extra>")
     mat, labels = confusion_matrix_normalized(conf)
     fig_hm = go.Figure(
         data=go.Heatmap(
@@ -1029,7 +1114,7 @@ def tab_modelo() -> html.Div:
         )
     )
     fig_hm.update_layout(
-        title="Matriz de confusion (mejor modelo), fraccion por fila (real)",
+        title="Matriz de confusion del modelo seleccionado (fraccion por fila: clase real)",
         paper_bgcolor="white",
     )
     best = str(kpi_lookup(kpis, "best_model_name") or "xgboost")
@@ -1041,20 +1126,26 @@ def tab_modelo() -> html.Div:
     note = html.Div(
         [
             html.P(
-                f"{best} obtiene el mayor F1 macro en la comparativa de validacion cruzada temporal."
+                "Esta pestaña compara los modelos entrenados mediante validacion cruzada temporal. "
+                "Las metricas reportadas aqui son las que deben usarse para evaluar generalizacion; "
+                "las metricas del entrenamiento final solo indican ajuste sobre el conjunto completo."
+            ),
+            html.P(
+                f"El modelo seleccionado para despliegue reportado en los KPI es {best}. "
+                "La eleccion prioriza F1 macro y exactitud balanceada en validacion cruzada temporal."
             ),
             html.P(
                 f"La diferencia frente a soft_voting_ensemble en F1 macro es marginal (aprox. {diff:.2f})."
             ),
             html.P(
                 f"El KPI training_f1_macro = {dash_format_number(train_f1)} corresponde al ajuste sobre las ventanas de entrenamiento "
-                "final; no debe interpretarse como generalizacion."
+                "final; no debe interpretarse como metrica de generalizacion."
             ),
         ],
         className="note",
     )
     tbl = dash_table.DataTable(
-        columns=[{"name": c, "id": c} for c in mm.columns],
+        columns=[{"name": MODEL_METRICS_COLUMN_LABELS.get(c, c), "id": c} for c in mm.columns],
         data=round_numeric_df(mm).to_dict("records"),
         page_size=10,
         style_table={"overflowX": "auto"},
@@ -1067,7 +1158,7 @@ def tab_modelo() -> html.Div:
             note,
             html.Div([dcc.Graph(figure=fig_f1), dcc.Graph(figure=fig_ba)], style={"display": "grid", "gridTemplateColumns": "1fr 1fr", "gap": "1rem"}),
             dcc.Graph(figure=fig_hm),
-            html.H4("Metricas por modelo"),
+            html.H4("Metricas por modelo (export)"),
             tbl,
         ],
         className="tab-panel",
@@ -1080,6 +1171,11 @@ def tab_predicciones() -> html.Div:
         return html.Div(
             [
                 html.H3("Predicciones por ventana"),
+                html.P(
+                    "Cada punto representa una ventana temporal agregada. Las predicciones indican el batch clasificado por el modelo "
+                    "y se complementan con confianza, margen entre clases e indices de condicion.",
+                    className="note",
+                ),
                 html.P("Sin datos. Ejecute: python run_pipeline.py --stage dashboard_exports"),
                 html.Div(
                     [
@@ -1090,8 +1186,8 @@ def tab_predicciones() -> html.Div:
                         dcc.Checklist(
                             id="pred-index-series",
                             options=[
-                                {"label": " Threshold por batch", "value": "by_batch"},
-                                {"label": " Health index (por batch)", "value": "health_batch"},
+                                    {"label": "Severidad por batch (CSV)", "value": "by_batch"},
+                                    {"label": "EPI / salud relativa por batch (CSV)", "value": "health_batch"},
                             ],
                             value=list(PRED_INDEX_SERIES_DEFAULT),
                             style={"display": "none"},
@@ -1104,17 +1200,19 @@ def tab_predicciones() -> html.Div:
                     style={"display": "flex", "gap": "1rem", "flexWrap": "wrap"},
                 ),
                 dcc.Graph(id="pred-graph-count"),
-                html.H4("Indices operacionales (baseline por crudo predicho, Etapa 10D)"),
+                html.H4("Indices con linea base por crudo predicho"),
                 html.P(
-                    "El indice se calcula con la linea base del crudo predicho cuando confidence >= 0.80 y margin_top2 >= 0.15; "
-                    "si no, usa baseline global. Health: puntos por y_pred_label; Condition: bandas = complemento de EPI 60/80 (0-20 / 20-40 / 40-100 en severidad), trazas segmentadas y MA60/suavizado 4p. "
-                    "Bandas exploratorias (no normativas).",
+                    "El indice operacional usa la linea base del crudo predicho cuando la confianza del clasificador >= 0.80 "
+                    "y el margen entre las dos clases mas probables >= 0.15; "
+                    "si no, usa baseline global. EPI: puntos por clase predicha; severidad: bandas alineadas al complemento de EPI 60/80 "
+                    "(0-20 / 20-40 / 40-100 en severidad), trazas segmentadas y media movil / suavizado. "
+                    "Todo es exploratorio (no normativo).",
                     className="note",
                     style={"fontSize": "0.85rem"},
                 ),
                 dcc.Graph(id="op-health-graph", figure=fig_empty("Sin datos")),
                 dcc.Graph(id="op-cond-graph", figure=fig_empty("Sin datos")),
-                html.H4("Tabla (filtrada)"),
+                html.H4("Tabla filtrada"),
                 html.Div(id="pred-table-container"),
             ],
             className="tab-panel",
@@ -1125,6 +1223,12 @@ def tab_predicciones() -> html.Div:
     return html.Div(
         [
             html.H3("Predicciones por ventana"),
+            html.P(
+                "Cada punto representa una ventana temporal agregada. Las predicciones indican el batch clasificado por el modelo "
+                "y se complementan con confianza, margen entre clases e indices de condicion.",
+                className="note",
+                style={"marginBottom": "0.65rem"},
+            ),
             html.Div(
                 [
                     html.Div(
@@ -1135,19 +1239,19 @@ def tab_predicciones() -> html.Div:
                     ),
                     html.Div(
                         [
-                            html.Label("Prediccion (y_pred_label)"),
+                            html.Label("Clase predicha"),
                             dcc.Dropdown(id="flt-pred", options=[{"label": x, "value": x} for x in preds], value="(todos)", clearable=False),
                         ]
                     ),
                     html.Div(
                         [
-                            html.Label("is_correct"),
+                            html.Label("Solo aciertos / errores"),
                             dcc.Dropdown(
                                 id="flt-ok",
                                 options=[
                                     {"label": "(todos)", "value": "all"},
-                                    {"label": "True", "value": "True"},
-                                    {"label": "False", "value": "False"},
+                                    {"label": "Solo aciertos", "value": "True"},
+                                    {"label": "Solo errores", "value": "False"},
                                 ],
                                 value="all",
                                 clearable=False,
@@ -1156,19 +1260,19 @@ def tab_predicciones() -> html.Div:
                     ),
                     html.Div(
                         [
-                            html.Label("Rango window_id (filtro)"),
+                            html.Label("Rango de ventanas"),
                             dcc.RangeSlider(id="flt-wid", min=wmin, max=wmax, step=1, value=[wmin, wmax], marks=None, tooltip={"placement": "bottom"}),
                         ],
                         style={"minWidth": "280px", "flex": "1 1 280px"},
                     ),
                     html.Div(
                         [
-                            html.Label("Indices en serie temporal (por batch)"),
+                            html.Label("Series en grafico de indices"),
                             dcc.Checklist(
                                 id="pred-index-series",
                                 options=[
-                                    {"label": " Threshold por batch", "value": "by_batch"},
-                                    {"label": " Health index (por batch)", "value": "health_batch"},
+                                    {"label": "Severidad por batch (CSV)", "value": "by_batch"},
+                                    {"label": "EPI / salud relativa por batch (CSV)", "value": "health_batch"},
                                 ],
                                 value=list(PRED_INDEX_SERIES_DEFAULT),
                                 inline=True,
@@ -1182,10 +1286,11 @@ def tab_predicciones() -> html.Div:
             html.Div(
                 [
                     html.P(
-                        "El filtro por rango sigue usando window_id. Las graficas de serie usan el tiempo de inicio de ventana (columna window_start del CSV) "
+                        "El filtro por rango usa el identificador de ventana (window_id). Las graficas de serie usan el tiempo de inicio de ventana (window_start) "
                         "en el eje horizontal cuando esta disponible. "
-                        "baseline_batch_used usa Batch historico real en este analisis. "
-                        "En operacion futura se debe usar el batch predicho solo si confidence y margin_top2 son suficientes.",
+                        "La columna linea base usada refleja el batch historico real en este analisis. "
+                        "En analisis historico se dispone del batch real. En operacion futura, la linea base por batch debe seleccionarse con la clase predicha "
+                        "solo si la confianza es suficiente.",
                         className="note",
                         style={"fontSize": "0.85rem", "padding": "0.5rem", "margin": 0},
                     ),
@@ -1201,17 +1306,19 @@ def tab_predicciones() -> html.Div:
                 style={"display": "flex", "gap": "1rem", "flexWrap": "wrap"},
             ),
             dcc.Graph(id="pred-graph-count"),
-            html.H4("Indices operacionales (baseline por crudo predicho, Etapa 10D)"),
+            html.H4("Indices con linea base por crudo predicho"),
             html.P(
-                "El indice se calcula con la linea base del crudo predicho cuando confidence >= 0.80 y margin_top2 >= 0.15; "
-                "si no, usa baseline global. Health: puntos por y_pred_label; Condition: bandas = complemento de EPI 60/80 (0-20 / 20-40 / 40-100 en severidad), trazas segmentadas y MA60/suavizado 4p. "
-                "Bandas exploratorias (no normativas).",
+                "El indice operacional usa la linea base del crudo predicho cuando la confianza del clasificador >= 0.80 "
+                "y el margen entre las dos clases mas probables >= 0.15; "
+                "si no, usa baseline global. EPI: puntos por clase predicha; severidad: bandas alineadas al complemento de EPI 60/80 "
+                "(0-20 / 20-40 / 40-100 en severidad), trazas segmentadas y media movil / suavizado. "
+                "Todo es exploratorio (no normativo).",
                 className="note",
                 style={"fontSize": "0.85rem"},
             ),
             dcc.Graph(id="op-health-graph", figure=fig_empty("Cargando...")),
             dcc.Graph(id="op-cond-graph", figure=fig_empty("Cargando...")),
-            html.H4("Tabla (filtrada)"),
+            html.H4("Tabla filtrada"),
             html.Div(id="pred-table-container"),
         ],
         className="tab-panel",
@@ -1226,29 +1333,60 @@ def tab_estadistica() -> html.Div:
     pca_pts = DATA["pca_projection"]
     cards = html.Div(
         [
-            html.Div([html.Div("permanova_r2", className="label"), html.Div(dash_format_number(kpi_lookup(kpis, "permanova_r2")), className="value")], className="kpi-card"),
-            html.Div([html.Div("permanova_p_value", className="label"), html.Div(dash_format_number(kpi_lookup(kpis, "permanova_p_value")), className="value")], className="kpi-card"),
-            html.Div([html.Div("permdisp_F", className="label"), html.Div(dash_format_number(kpi_lookup(kpis, "permdisp_F")), className="value")], className="kpi-card"),
-            html.Div([html.Div("permdisp_p_value", className="label"), html.Div(dash_format_number(kpi_lookup(kpis, "permdisp_p_value")), className="value")], className="kpi-card"),
-            html.Div([html.Div("PC1 var.", className="label"), html.Div(dash_format_number(kpi_lookup(kpis, "pca_explained_variance_PC1")), className="value")], className="kpi-card"),
-            html.Div([html.Div("PC2 var.", className="label"), html.Div(dash_format_number(kpi_lookup(kpis, "pca_explained_variance_PC2")), className="value")], className="kpi-card"),
+            html.Div(
+                [
+                    html.Div("PERMANOVA R\u00b2", className="label"),
+                    html.Div(dash_format_number(kpi_lookup(kpis, "permanova_r2")), className="value"),
+                ],
+                className="kpi-card",
+            ),
+            html.Div(
+                [
+                    html.Div("p-value PERMANOVA", className="label"),
+                    html.Div(dash_format_number(kpi_lookup(kpis, "permanova_p_value")), className="value"),
+                ],
+                className="kpi-card",
+            ),
+            html.Div(
+                [
+                    html.Div("PERMDISP F", className="label"),
+                    html.Div(dash_format_number(kpi_lookup(kpis, "permdisp_F")), className="value"),
+                ],
+                className="kpi-card",
+            ),
+            html.Div(
+                [
+                    html.Div("p-value PERMDISP", className="label"),
+                    html.Div(dash_format_number(kpi_lookup(kpis, "permdisp_p_value")), className="value"),
+                ],
+                className="kpi-card",
+            ),
+            html.Div(
+                [html.Div("Varianza explicada PC1", className="label"), html.Div(dash_format_number(kpi_lookup(kpis, "pca_explained_variance_PC1")), className="value")],
+                className="kpi-card",
+            ),
+            html.Div(
+                [html.Div("Varianza explicada PC2", className="label"), html.Div(dash_format_number(kpi_lookup(kpis, "pca_explained_variance_PC2")), className="value")],
+                className="kpi-card",
+            ),
         ],
         className="kpi-row",
     )
     children = [html.H3("Validacion estadistica"), cards]
     children.append(
+        html.P(
+            "Las pruebas estadisticas evaluan si las firmas vibratorias asociadas a CASTILLA, MEZCLA y RUBIALES presentan "
+            "diferencias multivariadas. Estas pruebas no infieren composicion quimica del crudo.",
+            className="note",
+            style={"marginBottom": "0.65rem"},
+        )
+    )
+    children.append(
         html.Div(
             [
-                html.P(
-                    "PERMANOVA significativo indica que las firmas vibratorias (espacio de features) "
-                    "difieren entre batches operacionales."
-                ),
-                html.P(
-                    "PERMDISP significativo indica diferencias en dispersion interna entre grupos, ademas de separacion de centroides."
-                ),
-                html.P(
-                    "No se debe inferir composicion quimica del crudo a partir de la vibracion."
-                ),
+                html.P("PERMANOVA evalua diferencias entre centroides multivariados."),
+                html.P("PERMDISP evalua diferencias de dispersion interna."),
+                html.P("Un resultado significativo no implica causalidad ni composicion quimica."),
             ],
             className="note",
         )
@@ -1397,12 +1535,15 @@ def tab_interpretabilidad() -> html.Div:
         html.Div(
             [
                 html.P(
+                    "La interpretabilidad muestra que variables ayudan al modelo a distinguir los batches. "
+                    "Estos resultados explican el comportamiento del clasificador; no son causalidad fisica ni pesos de condicion del activo."
+                ),
+                html.P(
                     "SHAP y permutation importance describen contribuciones al modelo entrenado; "
                     "no implican causalidad ni mecanismos fisicos directos."
                 ),
                 html.P(
-                    "Por importancia agregada por componente, la bomba suele liderar, seguida de cerca por motor. "
-                    "La familia con mayor peso agregado es acceleration_rms (segun rank_family)."
+                    "Los rankings deben leerse desde los datos exportados en cada ejecucion; no sustituyen revision tecnica ni inferencia causal."
                 ),
             ],
             className="note",
@@ -1420,7 +1561,7 @@ def tab_interpretabilidad() -> html.Div:
             x="consolidated_score",
             y="y_cat",
             orientation="h",
-            title="Top 20 features por consolidated_score",
+            title="Top 20 variables del ranking consolidado de interpretabilidad",
             hover_data={"feature": True, "raw_variable": True},
         )
         fig_top.update_layout(
@@ -1437,7 +1578,7 @@ def tab_interpretabilidad() -> html.Div:
         )
         fig_top.update_traces(hovertemplate="%{customdata[0]}<br>consolidated_score=%{x:.2f}<extra></extra>")
         children.append(dcc.Graph(figure=fig_top))
-        children.append(html.H4("Top 20 features (tabla)"))
+        children.append(html.H4("Top 20 (tabla exportada)"))
         show_cols = [c for c in ["consolidated_rank", "feature", "raw_variable", "consolidated_score", "family", "component"] if c in top.columns]
         children.append(
             dash_table.DataTable(
@@ -1449,10 +1590,10 @@ def tab_interpretabilidad() -> html.Div:
             )
         )
     for title, df, xcol in [
-        ("Importancia agregada por componente", rc, "share_percent"),
-        ("Importancia agregada por familia", rf, "share_percent"),
-        ("Por posicion", rp, "share_percent"),
-        ("Por estadistico", rs, "share_percent"),
+        ("Ranking agregado de interpretabilidad por componente", rc, "share_percent"),
+        ("Ranking agregado de interpretabilidad por familia", rf, "share_percent"),
+        ("Ranking agregado de interpretabilidad por posicion", rp, "share_percent"),
+        ("Ranking agregado de interpretabilidad por estadistico", rs, "share_percent"),
     ]:
         if not df.empty and xcol in df.columns and df.columns[0]:
             cat = df.columns[0]
@@ -1505,8 +1646,8 @@ def fig_condition_indices_multi(dfp: pd.DataFrame, selected: list[str] | None) -
     series_map = [
         ("fallback", "condition_index", "Fallback robusto", "#9467bd"),
         ("global", "condition_index_thresholded_global", "Threshold global", "#2ca02c"),
-        ("by_batch", "condition_index_thresholded_by_batch", "Threshold por batch", "#ff7f0e"),
-        ("health_batch", "health_index_thresholded_by_batch", "Health index (por batch)", "#1f77b4"),
+        ("by_batch", "condition_index_thresholded_by_batch", "Severidad umbral por batch (CSV)", "#ff7f0e"),
+        ("health_batch", "health_index_thresholded_by_batch", "EPI / salud relativa por batch (CSV)", "#1f77b4"),
     ]
     wid_cd = dfp["window_id"].values if "window_id" in dfp.columns else None
     for key, col, name, color in series_map:
@@ -1530,7 +1671,7 @@ def fig_condition_indices_multi(dfp: pd.DataFrame, selected: list[str] | None) -
     if not fig.data:
         return fig_empty("Seleccione indices disponibles o verifique columnas threshold en predictions")
     fig.update_layout(
-        title="Indices de condicion vs tiempo (inicio de ventana)" if use_t else "Indices de condicion vs window_id",
+        title="Indices de condicion y EPI por ventana (tiempo de inicio)" if use_t else "Indices de condicion y EPI vs window_id",
         paper_bgcolor="white",
         plot_bgcolor="white",
         height=320,
@@ -1594,23 +1735,23 @@ def fig_epi_bpc_picadora_style(pred_df: pd.DataFrame) -> go.Figure:
     cd = np.column_stack([wid, yp, conf, marg, ci_b])
     ht = (
         (
-            "tiempo=%{x|%Y-%m-%d %H:%M}<br>window_id=%{customdata[0]}<br>y_pred_label=%{customdata[1]}<br>confidence=%{customdata[2]:.2f}<br>"
-            "margin_top2=%{customdata[3]:.2f}<br>EPI_BPC=%{y:.2f}<br>condition_index_thresholded_by_batch=%{customdata[4]:.2f}<extra></extra>"
+            "tiempo=%{x|%Y-%m-%d %H:%M}<br>window_id=%{customdata[0]}<br>y_pred_label=%{customdata[1]}<br>Confianza del clasificador=%{customdata[2]:.2f}<br>"
+            "Margen entre las dos clases mas probables=%{customdata[3]:.2f}<br>EPI_BPC=%{y:.2f}<br>condition_index_thresholded_by_batch=%{customdata[4]:.2f}<extra></extra>"
         )
         if use_t
         else (
-            "window_id=%{customdata[0]}<br>y_pred_label=%{customdata[1]}<br>confidence=%{customdata[2]:.2f}<br>"
-            "margin_top2=%{customdata[3]:.2f}<br>EPI_BPC=%{y:.2f}<br>condition_index_thresholded_by_batch=%{customdata[4]:.2f}<extra></extra>"
+            "window_id=%{customdata[0]}<br>y_pred_label=%{customdata[1]}<br>Confianza del clasificador=%{customdata[2]:.2f}<br>"
+            "Margen entre las dos clases mas probables=%{customdata[3]:.2f}<br>EPI_BPC=%{y:.2f}<br>condition_index_thresholded_by_batch=%{customdata[4]:.2f}<extra></extra>"
         )
     )
     fig = go.Figure()
     fig.update_layout(
         shapes=_epi_bpc_band_shapes(),
-        title="EPI_BPC — Bomba de crudo · linea base por crudo predicho",
+        title="EPI_BPC — salud relativa con linea base por crudo predicho",
         paper_bgcolor="white",
         plot_bgcolor="white",
         height=440,
-        yaxis=dict(range=[0, 100], title="EPI_BPC / Health index (0-100)"),
+        yaxis=dict(range=[0, 100], title="EPI_BPC / salud relativa (0-100)"),
         xaxis=_plot_xaxis_layout(d),
         legend=dict(orientation="v", yanchor="top", y=1.0, xanchor="left", x=1.01, bgcolor="rgba(255,255,255,0.92)", font=dict(size=11)),
         margin=dict(t=70, r=200, l=56, b=52),
@@ -1709,23 +1850,23 @@ def fig_condition_index_bpc_bands(pred_df: pd.DataFrame) -> go.Figure:
     cd = np.column_stack([wid, yp, conf, marg, hi_b])
     ht = (
         (
-            "tiempo=%{x|%Y-%m-%d %H:%M}<br>window_id=%{customdata[0]}<br>y_pred_label=%{customdata[1]}<br>confidence=%{customdata[2]:.2f}<br>"
-            "margin_top2=%{customdata[3]:.2f}<br>condition_index_thr_batch=%{y:.2f}<br>health_index_thresholded_by_batch=%{customdata[4]:.2f}<extra></extra>"
+            "tiempo=%{x|%Y-%m-%d %H:%M}<br>window_id=%{customdata[0]}<br>y_pred_label=%{customdata[1]}<br>Confianza del clasificador=%{customdata[2]:.2f}<br>"
+            "Margen entre las dos clases mas probables=%{customdata[3]:.2f}<br>condition_index_thr_batch=%{y:.2f}<br>health_index_thresholded_by_batch=%{customdata[4]:.2f}<extra></extra>"
         )
         if use_t
         else (
-            "window_id=%{customdata[0]}<br>y_pred_label=%{customdata[1]}<br>confidence=%{customdata[2]:.2f}<br>"
-            "margin_top2=%{customdata[3]:.2f}<br>condition_index_thr_batch=%{y:.2f}<br>health_index_thresholded_by_batch=%{customdata[4]:.2f}<extra></extra>"
+            "window_id=%{customdata[0]}<br>y_pred_label=%{customdata[1]}<br>Confianza del clasificador=%{customdata[2]:.2f}<br>"
+            "Margen entre las dos clases mas probables=%{customdata[3]:.2f}<br>condition_index_thr_batch=%{y:.2f}<br>health_index_thresholded_by_batch=%{customdata[4]:.2f}<extra></extra>"
         )
     )
     fig = go.Figure()
     fig.update_layout(
         shapes=_condition_index_bpc_severity_shapes(),
-        title="",
+        title="Condition Index — severidad relativa con linea base por crudo predicho",
         paper_bgcolor="white",
         plot_bgcolor="white",
         height=420,
-        yaxis=dict(range=[0, 100], title="condition_index_thresholded_by_batch"),
+        yaxis=dict(range=[0, 100], title="Condition index (severidad 0-100)"),
         xaxis=_plot_xaxis_layout(d),
         legend=dict(
             orientation="v",
@@ -1827,7 +1968,7 @@ def fig_condition_index_bpc_bands(pred_df: pd.DataFrame) -> go.Figure:
 
 def fig_health_index_operational(dfp: pd.DataFrame) -> go.Figure:
     if dfp.empty or "health_index_operational" not in dfp.columns:
-        return fig_empty("Sin series operacionales (dashboard_predictions + Etapa 10D)")
+        return fig_empty("Sin series operacionales en predicciones exportadas (health_index_operational).")
     d = _sort_for_time_series_plots(dfp)
     xx = _plot_time_x(d)
     use_t = _plot_time_axis_usable(d)
@@ -1853,11 +1994,11 @@ def fig_health_index_operational(dfp: pd.DataFrame) -> go.Figure:
     fig = go.Figure()
     fig.update_layout(
         shapes=_epi_bpc_band_shapes(),  # mismos umbrales que EPI_BPC (tab Assessment)
-        title="Health Index — bandas segun crudo predicho (baseline dinamica, exploratorio)",
+        title="EPI_BPC operacional — salud relativa con linea base por crudo predicho",
         paper_bgcolor="white",
         plot_bgcolor="white",
         height=380,
-        yaxis=dict(range=[0, 100], title="health_index_operational"),
+        yaxis=dict(range=[0, 100], title="EPI_BPC operacional (0-100)"),
         xaxis=_plot_xaxis_layout(d),
         legend=dict(orientation="h", y=1.1),
         margin=dict(t=72),
@@ -1891,7 +2032,7 @@ def fig_health_index_operational(dfp: pd.DataFrame) -> go.Figure:
 def fig_condition_index_operational(dfp: pd.DataFrame) -> go.Figure:
     """Bandas severidad = complemento EPI 60/80; trazas segmentadas; leyenda compacta a la derecha."""
     if dfp.empty or "condition_index_operational" not in dfp.columns:
-        return fig_empty("Sin series operacionales (dashboard_predictions + Etapa 10D)")
+        return fig_empty("Sin series operacionales en predicciones exportadas (condition_index_operational).")
     d = _sort_for_time_series_plots(dfp)
     xx = _plot_time_x(d)
     use_t = _plot_time_axis_usable(d)
@@ -1911,25 +2052,25 @@ def fig_condition_index_operational(dfp: pd.DataFrame) -> go.Figure:
     cd = np.column_stack([wid, yp, conf, marg, bop, bst])
     ht = (
         (
-            "tiempo=%{x|%Y-%m-%d %H:%M}<br>window_id=%{customdata[0]}<br>y_pred_label=%{customdata[1]}<br>confidence=%{customdata[2]:.2f}<br>"
-            "margin_top2=%{customdata[3]:.2f}<br>condition_index_operational=%{y:.2f}<br>baseline_batch_operational=%{customdata[4]}<br>"
+            "tiempo=%{x|%Y-%m-%d %H:%M}<br>window_id=%{customdata[0]}<br>y_pred_label=%{customdata[1]}<br>Confianza del clasificador=%{customdata[2]:.2f}<br>"
+            "Margen entre las dos clases mas probables=%{customdata[3]:.2f}<br>condition_index_operational=%{y:.2f}<br>baseline_batch_operational=%{customdata[4]}<br>"
             "baseline_status=%{customdata[5]}<extra></extra>"
         )
         if use_t
         else (
-            "window_id=%{customdata[0]}<br>y_pred_label=%{customdata[1]}<br>confidence=%{customdata[2]:.2f}<br>"
-            "margin_top2=%{customdata[3]:.2f}<br>condition_index_operational=%{y:.2f}<br>baseline_batch_operational=%{customdata[4]}<br>"
+            "window_id=%{customdata[0]}<br>y_pred_label=%{customdata[1]}<br>Confianza del clasificador=%{customdata[2]:.2f}<br>"
+            "Margen entre las dos clases mas probables=%{customdata[3]:.2f}<br>condition_index_operational=%{y:.2f}<br>baseline_batch_operational=%{customdata[4]}<br>"
             "baseline_status=%{customdata[5]}<extra></extra>"
         )
     )
     fig = go.Figure()
     fig.update_layout(
         shapes=_condition_index_bpc_severity_shapes(),
-        title="",
+        title="Condition index operacional — severidad relativa con linea base por crudo predicho",
         paper_bgcolor="white",
         plot_bgcolor="white",
         height=420,
-        yaxis=dict(range=[0, 100], title="condition_index_operational"),
+        yaxis=dict(range=[0, 100], title="Severidad relativa operacional (0-100)"),
         xaxis=_plot_xaxis_layout(d),
         legend=dict(
             orientation="v",
@@ -2314,7 +2455,7 @@ def build_variable_threshold_figure(raw_var: str, mode: str) -> go.Figure:
         fig.add_trace(tr)
     lab = abbrev_label(raw_var, 64)
     fig.update_layout(
-        title=f"Variable individual con V0/H/HH dinamicos por crudo predicho (modo {mode}) — {lab}",
+        title=f"Senal vibracional vs V0/H/HH dinamicos (modo {mode}) — {lab}",
         paper_bgcolor="white",
         plot_bgcolor="white",
         height=440,
@@ -2331,7 +2472,7 @@ def operational_variable_section() -> list[Any]:
     default_v = opts[0]["value"] if opts and opts[0].get("value") else ""
     return [
         html.Hr(),
-        html.H4("Variable individual con V0/H/HH dinamicos por crudo predicho"),
+        html.H4("Variable individual con V0/H/HH dinamicos"),
         html.P(
             "Esta grafica muestra la variable cruda y sus umbrales V0/H/HH seleccionados segun el modo de linea base: "
             "predicted batch, real batch historico o global. "
@@ -2506,14 +2647,14 @@ def fig_health_series_predictions(pred: pd.DataFrame) -> go.Figure:
             x=xx,
             y=dfp["health_index_thresholded_by_batch"],
             mode="lines",
-            name="Health index (por batch)",
+            name="EPI / salud relativa por batch (CSV)",
             line=dict(color="#1f77b4", width=1.5),
             customdata=wid_cd,
             hovertemplate=ht,
         )
     )
     fig.update_layout(
-        title="Health index por batch vs tiempo (inicio de ventana; CSV)" if use_t else "Health index por batch vs window_id (solo lectura CSV)",
+        title="EPI / salud relativa por batch vs tiempo (inicio de ventana; CSV)" if use_t else "EPI / salud relativa por batch vs window_id (CSV)",
         paper_bgcolor="white",
         plot_bgcolor="white",
         height=300,
@@ -2538,11 +2679,11 @@ def estado_actual_del_activo_section() -> list[Any]:
         r0 = cur.iloc[0]
         specs: list[tuple[str, str, Any]] = [
             ("Batch real", str(r0.get("Batch", "")), r0.get("Batch")),
-            ("Batch predicho", str(r0.get("y_pred_label", "")), r0.get("y_pred_label")),
-            ("Confianza clasificacion", dash_format_number(r0.get("confidence")), r0.get("confidence")),
-            ("Indice condicion", dash_format_number(r0.get("condition_index")), r0.get("condition_index")),
-            ("Health index", dash_format_number(r0.get("health_index")), r0.get("health_index")),
-            ("Banda condition_state", str(r0.get("condition_state", "")), r0.get("condition_state")),
+            ("Crudo predicho", str(r0.get("y_pred_label", "")), r0.get("y_pred_label")),
+            ("Confianza del clasificador", dash_format_number(r0.get("confidence")), r0.get("confidence")),
+            ("Indice de condicion", dash_format_number(r0.get("condition_index")), r0.get("condition_index")),
+            ("EPI_BPC / salud relativa", dash_format_number(r0.get("health_index")), r0.get("health_index")),
+            ("Estado exploratorio", str(r0.get("condition_state", "")), r0.get("condition_state")),
         ]
         if not tr.empty and "trend_direction" in tr.columns:
             specs.append(("Tendencia reciente", str(tr.iloc[0]["trend_direction"]), tr.iloc[0]["trend_direction"]))
@@ -2584,14 +2725,27 @@ def estado_actual_del_activo_section() -> list[Any]:
 
     methodology = html.Div(
         [
-            html.P("Texto metodologico (decision support, no control automatico):"),
+            html.P("Notas metodologicas (exploratorias, no normativas):"),
             html.Ul(
                 [
-                    html.Li("condition_state (Etapa 9C) usa cortes alineados con el complemento de EPI 60/80: normal < 20, attention 20-40, high >= 40 (re-ejecutar condition_state para regenerar CSV)."),
-                    html.Li("health_index = 100 - condition_index (convencion del proyecto)."),
-                    html.Li("Las alertas exploratorias por variable usan condition_score individual, no el indice global."),
-                    html.Li("Una variable puede estar en nivel attention aunque el estado global sea normal."),
-                    html.Li("Nada de lo anterior constituye diagnostico normativo ni alarma reglamentaria."),
+                    html.Li("EPI_BPC = 100 - condition_index."),
+                    html.Li("Mayor EPI_BPC indica mejor condicion relativa."),
+                    html.Li("Mayor condition_index indica mayor severidad relativa."),
+                    html.Li(
+                        "V0/H/HH se estimaron como P40/P75/P99 del historico disponible; las bandas son visuales y exploratorias."
+                    ),
+                    html.Li(
+                        "El estado exploratorio (condition_state) resume bandas sobre condition_index: normal si < 20; "
+                        "attention si 20 <= condition_index < 40; high si >= 40. "
+                        "Sobre EPI_BPC: normal si > 80; attention si 60 <= EPI <= 80; high si < 60."
+                    ),
+                    html.Li("Las alertas no son alarmas normativas."),
+                    html.Li("Las alertas exploratorias por variable usan condition_score individual, no solo el indice global."),
+                    html.Li(
+                        "La tendencia reciente resume la pendiente del indice sobre ventanas pasadas; no es RUL ni vida util remanente."
+                    ),
+                    html.Li("Una variable puede estar en attention aunque el estado global sea normal."),
+                    html.Li("Nada de lo anterior constituye diagnostico normativo."),
                 ]
             ),
         ],
@@ -2607,7 +2761,7 @@ def estado_actual_del_activo_section() -> list[Any]:
         ),
         cards_row,
         methodology,
-        html.H5("Top 5 contribuyentes de condicion (ultima ventana)"),
+        html.H5("Contribuyentes principales al indice (ultima ventana)"),
         dcc.Graph(figure=fig_top_contributors_last_window(top)),
         html.Div(
             [
@@ -2628,9 +2782,9 @@ def estado_actual_del_activo_section() -> list[Any]:
         ),
         html.H5("Descomposicion por variable (long, ultima ventana)"),
         dcc.Graph(figure=fig_variables_long_last_window(long_df)),
-        html.H5("Health index temporal (por batch, desde predictions)"),
+        html.H5("EPI / salud relativa temporal (CSV de predicciones)"),
         dcc.Graph(figure=fig_health_series_predictions(pred)),
-        html.H5("Alertas exploratorias activas"),
+        html.H5("Alertas exploratorias"),
         alert_block,
         html.H5("Estado completo (CSV)"),
         _df_table(cur),
@@ -2655,27 +2809,31 @@ def tab_assessment() -> html.Div:
         html.Div(
             [
                 html.P(
-                    "Los pesos ponderados no son importancia ML; describen contribuciones al indice exploratorio."
+                    "El assessment ponderado estima una condicion relativa del activo usando pesos de variables vibracionales "
+                    "y lineas base exploratorias. Esta capa es independiente de la importancia del modelo ML."
                 ),
                 html.P(
-                    "Los umbrales V0/H/HH fueron estimados con percentiles P40/P75/P99 sobre el historico exportado; "
+                    "Los pesos ponderados no son importancia ML; describen aporte al indice exploratorio de condicion."
+                ),
+                html.P(
+                    "Los umbrales V0/H/HH se estimaron como P40/P75/P99 sobre el historico exportado; "
                     "no son limites normativos de alarma."
                 ),
                 html.P(
-                    "El modo por batch usa Batch real en este analisis historico. En operacion futura se debe "
-                    "seleccionar linea base por batch predicho solo si la confianza (y margin_top2) es suficiente."
+                    "El modo por batch usa el batch real en este analisis historico. En operacion futura se debe "
+                    "seleccionar la linea base por batch predicho solo si la confianza del clasificador y el margen entre las dos clases mas probables son suficientes."
                 ),
                 html.P(
                     "El indice es exploratorio y comparativo entre ventanas y batches; no constituye diagnostico normativo."
                 ),
                 html.P(
-                    "Etapa 10D: las bandas de color en indices operacionales dependen del crudo predicho por el modelo cuando "
-                    "la confianza es suficiente; si no, se usa baseline GLOBAL (assessment incierto en operacion). "
-                    "V0/H/HH son exploratorios (P40/P75/P99), no alarmas normativas."
+                    "Las bandas de color en indices operacionales siguen al crudo predicho por el modelo cuando "
+                    "la confianza es suficiente; si no, se usa baseline global y el assessment operacional se interpreta como mas incierto. "
+                    "Las bandas son visuales y exploratorias; las alertas no son alarmas normativas."
                 ),
                 html.P(
-                    "En analisis historico se puede comparar contra Batch real; en operacion el baseline operacional se deriva de "
-                    "y_pred_label con compuerta de confianza."
+                    "En analisis historico se puede comparar contra el batch real; en operacion el baseline operacional se deriva de "
+                    "la clase predicha con la compuerta de confianza configurada en la app."
                 ),
             ],
             className="note",
@@ -2684,21 +2842,41 @@ def tab_assessment() -> html.Div:
     children.extend(
         [
             html.Hr(),
-            html.H4("Indice EPI_BPC de condicion"),
-            dcc.Graph(figure=fig_epi_bpc_picadora_style(pred_op)),
+            html.H4("EPI_BPC de condicion relativa"),
+            html.P("EPI_BPC = 100 - condition_index.", className="note"),
+            html.P("Mayor EPI_BPC indica mejor condicion relativa.", className="note"),
+            html.P("Mayor condition_index indica mayor severidad relativa.", className="note"),
             html.P(
-                "El EPI_BPC usa la linea base del crudo predicho por el modelo cuando la confianza es suficiente. "
-                "Las bandas visuales son exploratorias; V0/H/HH fueron estimados por P40/P75/P99 del historico disponible y no son limites normativos.",
+                "El EPI_BPC usa la linea base del crudo predicho cuando la confianza del clasificador es suficiente; "
+                "si no, se usa baseline global o se marca el assessment como incierto en sentido operacional.",
                 className="note",
             ),
-            html.H5("Condition Index — vista tecnica (severidad relativa)"),
+            dcc.Graph(figure=fig_epi_bpc_picadora_style(pred_op)),
+            html.P(
+                "Las bandas visuales del grafico son exploratorias. Los umbrales V0/H/HH por variable se estimaron con "
+                "P40/P75/P99 del historico disponible y no son limites normativos.",
+                className="note",
+            ),
+            html.H4("Indice de severidad (condition_index)"),
             html.P(
                 "Serie con condition_index_thresholded_by_batch del CSV (linea base por batch del historico exportado). "
-                "Bandas de severidad = complemento en 0-100 de las bandas EPI (60/80): verde 0-20, amarillo 20-40, rojo 40-100; no diagnostico de falla.",
+                "Bandas de severidad alineadas al complemento de EPI 60/80 en escala 0-100: verde 0-20, amarillo 20-40, rojo 40-100. "
+                "Lectura exploratoria, no diagnostico de falla.",
                 className="note",
                 style={"fontSize": "0.82rem"},
             ),
             dcc.Graph(figure=fig_condition_index_bpc_bands(pred_op)),
+        ]
+    )
+    children.extend(
+        [
+            html.Hr(),
+            html.H4("Lineas base por crudo predicho"),
+            html.P(
+                "Los umbrales mostrados en la siguiente seccion dependen de la linea base seleccionada "
+                "(clase predicha con compuerta de confianza, batch historico o global). Son exploratorios (P40/P75/P99).",
+                className="note",
+            ),
         ]
     )
     children.extend(operational_variable_section())
@@ -2977,12 +3155,13 @@ def tab_assessment() -> html.Div:
                         html.Li("Los umbrales V0/H/HH fueron estimados con P40/P75/P99."),
                         html.Li("El modo by_batch usa Batch real en analisis historico."),
                         html.Li(
-                            "En operacion futura se debe seleccionar baseline por batch predicho solo si la confianza es suficiente."
+                            "En operacion futura se debe seleccionar baseline por batch predicho solo si la confianza del clasificador "
+                            "y el margen entre las dos clases mas probables son suficientes."
                         ),
                         html.Li("El indice es exploratorio/comparativo, no diagnostico normativo."),
                         html.Li(
-                            "Etapa 10D: bandas dinamicas segun crudo predicho con compuerta de confianza; V0/H/HH por variable "
-                            "siguen siendo exploratorios (P40/P75/P99), no normativos."
+                            "Las bandas operacionales siguen al crudo predicho cuando la confianza y el margen superan los umbrales de la app; "
+                            "V0/H/HH por variable siguen siendo exploratorios (P40/P75/P99), no normativos."
                         ),
                     ]
                 ),
@@ -3001,40 +3180,48 @@ def tab_advertencias() -> html.Div:
         (readme[:4000] + "\n\n[...]\n") if len(readme) > 4000 else readme
     ) if readme else "_README_dashboard_data.md no encontrado._"
     warn = """
-**Advertencias metodologicas**
+**Advertencias metodologicas (lectura rapida)**
 
-1. Las metricas de generalizacion son las de validacion cruzada temporal, no las del entrenamiento final sobre todas las ventanas.
-2. El assessment incluye robust_percentile_fallback y variantes con umbrales data-driven cuando los CSV estan disponibles.
-3. Los pesos ponderados no son importancia ML.
-4. SHAP y permutation importance no implican causalidad.
-5. MEZCLA es una clase operacional independiente (no se interpreta como Castilla + Rubiales).
-6. El modelo no debe implementarse en control real sin revision tecnica y validacion en planta.
+**A. Alcance de datos**
 
-**Estado actual del activo y JSON (Etapa 10C)**
+1. El dashboard usa la ultima exportacion historica disponible en `data/dashboard/`.
+2. No representa necesariamente una lectura en vivo ni telemetria continua garantizada.
 
-1. `current_asset_state.json` representa la ultima ventana historica exportada, **no** una lectura en vivo del activo.
-2. Las alertas activas en CSV son **exploratorias**; no son alarmas normativas.
-3. `condition_state` usa **bandas visuales** exploratorias, no alarmas normativas.
-4. `health_index = 100 - condition_index` cuando aplica en las tablas exportadas.
-5. **No** se calcula RUL ni vida util remanente en este dashboard.
-6. La tendencia mostrada es una pendiente o resumen reciente del indice sobre ventanas historicas; **no** es pronostico de falla.
-7. El dashboard es **apoyo a la decision**; **no** debe usarse para control automatico sin revision tecnica.
+**B. Modelo**
 
-**Bandas dinamicas por crudo predicho (Etapa 10D)**
+1. Las metricas de generalizacion son las de validacion cruzada temporal; no sustituyen el criterio tecnico de despliegue.
+2. Las metricas del entrenamiento final sobre todo el conjunto describen ajuste interno, no generalizacion.
+3. El modelo no debe usarse para control automatico sin revision tecnica y procedimientos de planta.
 
-1. Las bandas usadas en operacion dependen del crudo predicho (`y_pred_label`) cuando la confianza de clasificacion es suficiente (compuerta exploratoria en la app).
-2. Si la confianza es baja, debe usarse baseline **GLOBAL** o interpretarse el assessment como **incierto** en sentido operacional.
-3. En analisis historico se puede comparar contra **Batch real**; en operacion se usa el baseline derivado del modelo con la compuerta.
-4. V0/H/HH son exploratorios (P40/P75/P99); no son alarmas normativas ni diagnostico de falla.
+**C. Interpretabilidad**
+
+1. SHAP y permutation importance no implican causalidad ni mecanismos fisicos directos.
+
+**D. Assessment**
+
+1. Los pesos ponderados no son importancia ML del clasificador.
+2. V0/H/HH son exploratorios (P40/P75/P99); las bandas y alertas no son normativas.
+3. El assessment incluye `robust_percentile_fallback` y variantes con umbrales data-driven cuando los CSV estan disponibles.
+4. `condition_state` resume bandas visuales sobre `condition_index`: normal si < 20; attention si 20 <= condition_index < 40; high si >= 40.
+5. Sobre **EPI_BPC** (= 100 - condition_index, alineado con health index en exportaciones): normal si > 80; attention si 60 <= EPI <= 80; high si < 60.
+6. Las alertas en CSV son exploratorias; no son alarmas normativas.
+7. En analisis historico suele compararse con batch real; en operacion futura la linea base por batch debe alinearse con la clase predicha solo si la confianza y el margen entre las dos clases mas probables son suficientes; si no, usar baseline global o marcar incertidumbre.
+8. Las bandas operacionales en graficos siguen al crudo predicho cuando la compuerta de confianza de la app se cumple; si no, se usa baseline global.
+
+**E. Batch MEZCLA**
+
+1. MEZCLA se trata como clase operacional independiente (no se interpreta como mezcla fisica de Castilla y Rubiales).
+
+**F. Tendencia**
+
+1. La tendencia es una pendiente o resumen reciente del indice sobre ventanas historicas exportadas; no es RUL ni vida util remanente ni pronostico de falla.
 
 **Umbrales V0 / H / HH (exploratorios)**
 
 1. Los umbrales V0/H/HH globales y por batch son exploratorios.
 2. Fueron estimados desde el historico disponible: V0 = P40, H = P75, HH = P99.
 3. No son limites normativos de alarma.
-4. El modo by_batch usa Batch real en el analisis historico.
-5. En operacion futura, la linea base por batch debe seleccionarse con y_pred_label solo si confidence y margin_top2 son suficientes.
-6. Si la clasificacion esta incierta, usar linea base global o marcar assessment incierto.
+4. El modo by_batch usa batch real en el analisis historico.
 """
     js = DATA.get("asset_state_json")
     json_panel = (
@@ -3076,7 +3263,7 @@ app = Dash(
         {"http-equiv": "Expires", "content": "0"},
     ],
 )
-app.title = f"Proyecto 4 BPC — Dashboard v{DASHBOARD_APP_VERSION}"
+app.title = f"Clasificacion BPC — Dashboard v{DASHBOARD_APP_VERSION}"
 app.server.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 server = app.server
 
@@ -3110,21 +3297,21 @@ app.layout = html.Div(
                     [
                         html.H1(
                             [
-                                "Proyecto 4 — Clasificacion BPC (dashboard) ",
+                                "Clasificacion de crudo y monitoreo de condicion — BPC ",
                                 html.Span(
-                                    f"v{DASHBOARD_APP_VERSION}",
+                                    f"(version dashboard {DASHBOARD_APP_VERSION})",
                                     style={"fontSize": "0.55em", "color": "#555", "fontWeight": "500"},
                                 ),
                             ]
                         ),
                         html.P(
-                            "Solo lectura de data/dashboard/*.csv y data/dashboard/current_asset_state.json. "
-                            "Sin recalculo de modelos, SHAP, estadistica, assessment, umbrales ni condition_state.",
-                            style={"color": "#555", "margin": 0},
+                            "Dashboard de decision support basado en firma vibratoria, clasificacion de batch y assessment exploratorio de condicion del activo.",
+                            style={"color": "#333", "margin": "0.25rem 0 0 0", "fontSize": "0.95rem", "maxWidth": "62rem"},
                         ),
                         html.P(
-                            "Build Etapa 10D + EPI_BPC: bandas por crudo predicho, EPI estilo picadora, estado 10C.",
-                            style={"color": "#888", "fontSize": "0.8rem", "margin": "0.35rem 0 0 0"},
+                            "Los resultados se generan a partir de archivos derivados en data/dashboard. "
+                            "La app no reentrena modelos ni recalcula analisis (solo lectura al arrancar este proceso).",
+                            style={"color": "#555", "margin": "0.35rem 0 0 0"},
                         ),
                         html.P(
                             f"Version app {DASHBOARD_APP_VERSION} | mtime dashboard/app.py UTC: {DASH_APP_BUILD}. "
@@ -3158,7 +3345,7 @@ app.layout = html.Div(
                 dcc.Tab(label="4. Validacion estadistica", value="tab-sta", children=tab_estadistica()),
                 dcc.Tab(label="5. Interpretabilidad", value="tab-int", children=tab_interpretabilidad()),
                 dcc.Tab(label="6. Assessment ponderado", value="tab-ass", children=tab_assessment()),
-                dcc.Tab(label="7. Datos y advertencias", value="tab-wrn", children=tab_advertencias()),
+                dcc.Tab(label="7. Datos y advertencias metodologicas", value="tab-wrn", children=tab_advertencias()),
             ],
         ),
     ],
@@ -3217,7 +3404,7 @@ def update_predictions(batch, pred_label, ok, w_range, index_series):
         y="y_pred_label",
         color="y_pred_label",
         color_discrete_map=color_map,
-        title="Prediccion vs tiempo (inicio de ventana)" if use_t else "Prediccion por window_id",
+        title="Clase predicha vs tiempo (inicio de ventana)" if use_t else "Clase predicha vs ventana (window_id)",
     )
     fig_sc.update_layout(paper_bgcolor="white", height=360, xaxis=_plot_xaxis_layout(dfp))
     if use_t and "window_id" in dfp.columns:
@@ -3231,17 +3418,17 @@ def update_predictions(batch, pred_label, ok, w_range, index_series):
         dfp,
         x=xcol,
         y="confidence",
-        title="Confianza vs tiempo (inicio de ventana)" if use_t else "Confianza vs window_id",
+        title="Confianza del clasificador vs tiempo (inicio de ventana)" if use_t else "Confianza del clasificador vs window_id",
     )
     fig_cf.update_traces(line=dict(color="#444"))
     fig_cf.update_layout(paper_bgcolor="white", height=300, xaxis=_plot_xaxis_layout(dfp))
     if use_t and "window_id" in dfp.columns:
         fig_cf.update_traces(
             customdata=dfp["window_id"],
-            hovertemplate="tiempo=%{x|%Y-%m-%d %H:%M}<br>window_id=%{customdata}<br>confidence=%{y:.2f}<extra></extra>",
+            hovertemplate="tiempo=%{x|%Y-%m-%d %H:%M}<br>window_id=%{customdata}<br>Confianza del clasificador=%{y:.2f}<extra></extra>",
         )
     else:
-        fig_cf.update_traces(hovertemplate="window_id=%{x}<br>confidence=%{y:.2f}<extra></extra>")
+        fig_cf.update_traces(hovertemplate="window_id=%{x}<br>Confianza del clasificador=%{y:.2f}<extra></extra>")
     sel = [s for s in (list(index_series) if index_series else list(PRED_INDEX_SERIES_DEFAULT)) if s in PRED_INDEX_SERIES_ALLOWED]
     if not sel:
         sel = list(PRED_INDEX_SERIES_DEFAULT)
@@ -3259,7 +3446,7 @@ def update_predictions(batch, pred_label, ok, w_range, index_series):
         vc_ct,
         x="clase",
         y="n",
-        title="Conteo predicciones (filtrado)",
+        title="Conteo de clases predichas (filtro activo)",
         color="clase",
         color_discrete_map=CLASS_COLORS,
     )
@@ -3297,11 +3484,12 @@ def update_predictions(batch, pred_label, ok, w_range, index_series):
     ]
     cols = [c for c in show if c in dfp.columns]
     tbl = dash_table.DataTable(
-        columns=[{"name": c, "id": c} for c in cols],
+        columns=[{"name": PREDICTION_TABLE_COLUMN_LABELS.get(c, c), "id": c} for c in cols],
         data=round_numeric_df(dfp[cols].head(200)).to_dict("records"),
         page_size=15,
         style_table={"overflowX": "auto", "maxHeight": "420px", "overflowY": "auto"},
         style_cell={"fontSize": "0.75rem", "padding": "4px"},
+        tooltip_header=_prediction_table_tooltip_header_for_datatable(cols),
     )
     fig_op_h = fig_health_index_operational(dfp)
     fig_op_c = fig_condition_index_operational(dfp)
@@ -3314,7 +3502,7 @@ def update_var_thresh_graph(raw_var: str | None, mode: str | None) -> go.Figure:
 
 
 if __name__ == "__main__":
-    print("=== Proyecto 4 BPC dashboard (Etapa 10D) ===")
+    print("=== Clasificacion BPC / dashboard ===")
     print(f"Dashboard app version: {DASHBOARD_APP_VERSION}")
     for msg in DATA.get("_health_warnings") or []:
         print("[dashboard health]", msg)
@@ -3323,11 +3511,11 @@ if __name__ == "__main__":
     for msg in DATA.get("_condition_state_warnings") or []:
         print("[condition_state]", msg)
     if not (DATA.get("_condition_state_warnings") or []):
-        print("[condition_state] OK: artefactos Etapa 9C presentes y validaciones basicas cumplen.")
+        print("[condition_state] OK: artefactos de estado exportados presentes y validaciones basicas cumplen.")
     for msg in DATA.get("_operational_10d_warnings") or []:
-        print("[10d operational]", msg)
+        print("[operational baseline]", msg)
     if not (DATA.get("_operational_10d_warnings") or []):
-        print("[10d operational] OK: baseline operacional y umbrales listos para graficos dinamicos.")
+        print("[operational baseline] OK: columnas operacionales listas para graficos con linea base predicha.")
     port_env = os.environ.get("PORT")
     if port_env is not None:
         host = "0.0.0.0"

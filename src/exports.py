@@ -195,7 +195,7 @@ def build_dashboard_kpis(sources: dict[str, pd.DataFrame]) -> pd.DataFrame:
             "permanova_r2",
             float(perm.iloc[0]["r2"]),
             "estadistica",
-            "PERMANOVA R2 sobre ventanas",
+            "PERMANOVA R\u00b2 sobre ventanas",
         )
         add(
             rows,
@@ -205,7 +205,7 @@ def build_dashboard_kpis(sources: dict[str, pd.DataFrame]) -> pd.DataFrame:
             "PERMANOVA p-value",
         )
     else:
-        add(rows, "permanova_r2", None, "estadistica", "PERMANOVA R2")
+        add(rows, "permanova_r2", None, "estadistica", "PERMANOVA R\u00b2")
         add(rows, "permanova_p_value", None, "estadistica", "PERMANOVA p-value")
 
     if not disp.empty:
@@ -249,7 +249,7 @@ def build_dashboard_kpis(sources: dict[str, pd.DataFrame]) -> pd.DataFrame:
         "best_model_balanced_accuracy_cv",
         b0.get("balanced_accuracy_mean"),
         "modelo",
-        "Balanced accuracy promedio en CV",
+        "Exactitud balanceada promedio en CV",
     )
 
     if best_name and not cms.empty:
@@ -289,7 +289,7 @@ def build_dashboard_kpis(sources: dict[str, pd.DataFrame]) -> pd.DataFrame:
         "training_balanced_accuracy",
         ft.get("training_balanced_accuracy"),
         "modelo_final",
-        "Balanced accuracy entrenamiento final",
+        "Exactitud balanceada en entrenamiento final",
     )
     add(rows, "mean_confidence", ft.get("mean_confidence"), "modelo_final", "Confianza media prediccion final")
     add(rows, "median_confidence", ft.get("median_confidence"), "modelo_final", "Confianza mediana prediccion final")
@@ -298,8 +298,8 @@ def build_dashboard_kpis(sources: dict[str, pd.DataFrame]) -> pd.DataFrame:
     add(rows, "best_feature_consolidated", i0.get("best_feature_consolidated"), "interpretabilidad", "Mejor feature consolidada")
     add(rows, "best_feature_raw_variable", i0.get("best_feature_raw_variable"), "interpretabilidad", "Variable raw de mejor feature")
     add(rows, "top_raw_variable", i0.get("top_raw_variable"), "interpretabilidad", "Top variable raw agregada")
-    add(rows, "top_component", i0.get("top_component"), "interpretabilidad", "Top componente")
-    add(rows, "top_family", i0.get("top_family"), "interpretabilidad", "Top familia")
+    add(rows, "top_component", i0.get("top_component"), "interpretabilidad", "Top componente (interpretabilidad)")
+    add(rows, "top_family", i0.get("top_family"), "interpretabilidad", "Top familia (interpretabilidad)")
     add(rows, "top_position", i0.get("top_position"), "interpretabilidad", "Top posicion")
     add(rows, "top_statistic", i0.get("top_statistic"), "interpretabilidad", "Top estadistico")
     add(rows, "shap_status", i0.get("shap_status"), "interpretabilidad", "Estado SHAP")
@@ -397,7 +397,7 @@ def build_dashboard_kpis(sources: dict[str, pd.DataFrame]) -> pd.DataFrame:
             "current_classification_confidence",
             r.get("confidence"),
             "condition_state",
-            "Confianza de clasificacion en la ultima ventana",
+            "Confianza del clasificador en la ultima ventana",
         )
         add(
             rows,
@@ -418,7 +418,7 @@ def build_dashboard_kpis(sources: dict[str, pd.DataFrame]) -> pd.DataFrame:
             "current_condition_state",
             r.get("condition_state"),
             "condition_state",
-            "Banda visual: normal <50, attention 50-80, high >=80 (no normativa)",
+            "Banda visual sobre condition_index: normal <20, attention 20-40, high >=40 (no normativa)",
         )
         add(
             rows,
@@ -446,21 +446,21 @@ def build_dashboard_kpis(sources: dict[str, pd.DataFrame]) -> pd.DataFrame:
             "top_condition_component",
             r.get("top_component_by_contribution"),
             "condition_state",
-            "Componente con mayor weighted_score en ultima ventana (top 10 interno)",
+            "Componente destacado en el resumen de condicion (KPI agregado; puede diferir del driver principal)",
         )
         add(
             rows,
             "top_condition_family",
             r.get("top_family_by_contribution"),
             "condition_state",
-            "Familia con mayor weighted_score en ultima ventana",
+            "Familia destacada en el resumen de condicion (KPI agregado; puede diferir del driver principal)",
         )
         add(
             rows,
             "top_condition_variable",
             r.get("top_variable_by_contribution"),
             "condition_state",
-            "Variable raw con mayor weighted_score en ultima ventana",
+            "Variable principal de condicion (mayor weighted_score en la ventana)",
         )
 
     return pd.DataFrame(rows)
@@ -1096,7 +1096,7 @@ python run_pipeline.py --stage dashboard_exports
 ### Etapa 8C — Estado de condicion y alertas (exploratorio)
 
 - Las **alertas** en `dashboard_condition_alerts_active.csv` son **exploratorias**; **no** son alarmas normativas ni sustituyen procedimientos de operacion.
-- **condition_state** usa **bandas visuales** sobre el indice: **normal** < 50, **attention** 50-80, **high** >= 80 (umbrales no normativos).
+- **condition_state** usa **bandas visuales** sobre **condition_index**: **normal** si < 20, **attention** si 20 <= indice < 40, **high** si >= 40 (umbrales no normativos). Sobre **EPI_BPC** (= health_index = 100 - condition_index): **normal** si EPI > 80, **attention** si 60 <= EPI <= 80, **high** si EPI < 60.
 - **health_index** = 100 − **condition_index** (misma convencion en series y KPIs cuando aplica).
 - **No** se calcula **RUL** ni vida util remanente en estos artefactos.
 - **current_asset_state.json** representa el **ultimo estado historico disponible** en los datos exportados, **no** una lectura en vivo del activo.
@@ -1104,7 +1104,7 @@ python run_pipeline.py --stage dashboard_exports
 ### Umbrales V0 / H / HH (Etapa 8B, exploratorios)
 
 - Los umbrales V0/H/HH globales y por batch son **exploratorios**; no son limites normativos de alarma ni detectan falla real por si solos.
-- Se estimaron con percentiles del historico disponible en ventanas: **V0 = P05, H = P95, HH = P99** (por variable; por batch dentro de cada Batch).
+- Se estimaron con percentiles del historico disponible en ventanas: **V0 = P40, H = P75, HH = P99** (por variable; por batch dentro de cada Batch).
 - El modo **by_batch** en analisis historico usa el **Batch real** de cada ventana.
 - En operacion futura, si se usara batch **predicho**, solo seria aceptable con **confianza y margen** del modelo suficientes; si no, conviene baseline **global** o marcar el assessment como **incierto**.
 """

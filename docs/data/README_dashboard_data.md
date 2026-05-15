@@ -61,7 +61,7 @@ python run_pipeline.py --stage dashboard_exports
 ### Etapa 8C — Estado de condicion y alertas (exploratorio)
 
 - Las **alertas** en `dashboard_condition_alerts_active.csv` son **exploratorias**; **no** son alarmas normativas ni sustituyen procedimientos de operacion.
-- **condition_state** usa **bandas visuales** sobre el indice: **normal** < 50, **attention** 50-80, **high** >= 80 (umbrales no normativos).
+- **condition_state** resume **bandas visuales** sobre **condition_index**: **normal** si < 20, **attention** si 20 <= indice < 40, **high** si >= 40 (umbrales no normativos). Sobre **EPI_BPC** (= health_index = 100 - condition_index): **normal** si EPI > 80, **attention** si 60 <= EPI <= 80, **high** si EPI < 60.
 - **health_index** = 100 − **condition_index** (misma convencion en series y KPIs cuando aplica).
 - **No** se calcula **RUL** ni vida util remanente en estos artefactos.
 - **current_asset_state.json** representa el **ultimo estado historico disponible** en los datos exportados, **no** una lectura en vivo del activo.
@@ -69,6 +69,6 @@ python run_pipeline.py --stage dashboard_exports
 ### Umbrales V0 / H / HH (Etapa 8B, exploratorios)
 
 - Los umbrales V0/H/HH globales y por batch son **exploratorios**; no son limites normativos de alarma ni detectan falla real por si solos.
-- Se estimaron con percentiles del historico disponible en ventanas: **V0 = P05, H = P95, HH = P99** (por variable; por batch dentro de cada Batch).
+- Se estimaron con percentiles del historico disponible en ventanas: **V0 = P40, H = P75, HH = P99** (por variable; por batch dentro de cada Batch).
 - El modo **by_batch** en analisis historico usa el **Batch real** de cada ventana.
 - En operacion futura, si se usara batch **predicho**, solo seria aceptable con **confianza y margen** del modelo suficientes; si no, conviene baseline **global** o marcar el assessment como **incierto**.

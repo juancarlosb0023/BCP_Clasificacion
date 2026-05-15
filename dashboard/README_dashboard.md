@@ -1,6 +1,16 @@
-# Dashboard visual (Dash) — Proyecto 4 BPC
+# Dashboard Dash — Clasificacion de crudo y monitoreo de condicion (BPC)
 
-## Requisitos
+## Proposito
+
+Herramienta de **decision support** que lee archivos ya exportados en `data/dashboard/` (CSV y JSON). Integra:
+
+- **Clasificacion de batch** (CASTILLA, MEZCLA, RUBIALES) a partir de firma vibratoria en ventanas agregadas.
+- **Metricas del modelo** desde validacion cruzada temporal (referencia de generalizacion).
+- **Assessment exploratorio** de condicion relativa del activo, con **EPI_BPC**, bandas visuales y alertas **exploratorias** (no normativas).
+
+La aplicacion **no** reentrena modelos, **no** recalcula SHAP, estadistica ni assessment: solo presenta lo exportado por el pipeline.
+
+## Requisitos y ejecucion
 
 1. Instalar dependencias del proyecto:
 
@@ -8,98 +18,90 @@
 pip install -r requirements.txt
 ```
 
-2. Generar CSV en `data/dashboard/` (solo lectura de `outputs/tables/`; no entrena modelos). Para incluir estado de condicion y JSON del activo, ejecute antes la etapa 8C y luego exportes:
+2. Generar CSV en `data/dashboard/` (el pipeline copia/agrega desde `outputs/tables/`; no entrena en esta etapa). Para incluir estado de condicion y JSON del activo:
 
 ```text
 python run_pipeline.py --stage condition_state
 python run_pipeline.py --stage dashboard_exports
 ```
 
-Si solo necesita tablas previas al estado actual, basta con:
+Si solo necesita tablas previas al bloque de estado actual:
 
 ```text
 python run_pipeline.py --stage dashboard_exports
 ```
 
-3. Ejecutar la aplicacion desde la **raiz del subproyecto** `Proyecto4_BPC_Clasificacion`:
+3. Ejecutar desde la **raiz** del subproyecto `Proyecto4_BPC_Clasificacion`:
 
 ```text
 python dashboard/app.py
 ```
 
-4. Abrir en el navegador:
+4. Abrir en el navegador (puerto por defecto 8050; si esta ocupado, use `DASH_PORT`):
 
 ```text
 http://127.0.0.1:8050
 ```
 
-## Notas
+```text
+set DASH_PORT=8051
+python dashboard/app.py
+```
 
-- La app **solo** lee archivos en `data/dashboard/*.csv` y `data/dashboard/current_asset_state.json` (y el README de esa carpeta).
-- No invoca `src/modeling.py`, `src/interpretability.py` ni `src/assessment.py`.
-- Si faltan CSV criticos, la pantalla indica ejecutar `dashboard_exports` primero.
+## EPI_BPC y condition_index
 
-## Estado actual del activo
+- **EPI_BPC** y el **health index** exportado siguen la convencion **EPI_BPC = 100 - condition_index** cuando aplica en las series (p. ej. `health_index_thresholded_by_batch` en `dashboard_predictions.csv`).
+- **Mayor EPI_BPC** indica **mejor** condicion relativa frente a la linea base usada.
+- **Mayor condition_index** indica **mayor severidad relativa**.
 
-En la pestana **6. Assessment ponderado** y en advertencias se usan artefactos de las etapas **8C / 9C** (solo lectura):
+**Bandas exploratorias (no normativas):**
+
+- Sobre **condition_index**: normal si **< 20**; attention si **20 a 40**; high si **>= 40**.
+- Sobre **EPI_BPC** (0-100): normal si **> 80**; attention si **60 a 80**; high si **< 60**.
+
+## Lineas base dinamicas (predicciones operacionales)
+
+En memoria, el dashboard deriva columnas operacionales desde `dashboard_predictions.csv` para alinear umbrales y series con el **crudo predicho** cuando la **confianza** y el **margen entre las dos clases mas probables** superan los umbrales configurados en la app; si no, usa baseline **GLOBAL** y marca el estado operacional como mas **incierto**.
+
+| Columna (export o derivada) | Lectura resumida |
+|-----------------------------|------------------|
+| `baseline_batch_operational` | Linea base efectiva segun clase predicha y compuerta de confianza, o `GLOBAL`. |
+| `baseline_status` | Indica si la linea base sigue al crudo predicho o a fallback global. |
+| `health_index_operational` / `condition_index_operational` | Series operacionales coherentes con esa linea base. |
+
+En **analisis historico** suele disponerse del **batch real**; en **operacion futura** la linea base por batch debe alinearse con la **clase predicha** solo si la confianza (y el margen) son suficientes.
+
+## V0 / H / HH
+
+Se estimaron como percentiles **P40, P75 y P99** del historico disponible. Son **exploratorios**; **no** son limites normativos de alarma.
+
+## Estado actual y alertas exploratorias
+
+Artefactos tipicos (solo lectura):
 
 | Archivo | Rol |
 |---------|-----|
-| `dashboard_condition_current_state.csv` | Una fila con el estado de la **ultima ventana historica** exportada (indices, banda `condition_state`, batches, confianza). |
-| `dashboard_condition_alerts_active.csv` | Alertas **exploratorias** por variable (0 o mas filas); no son alarmas normativas. |
-| `dashboard_condition_contributions_top_by_window.csv` | Top contribuyentes de condicion por ventana (p. ej. top 5 internos en pipeline); el dashboard filtra la **ultima** `window_id`. |
-| `dashboard_condition_contributions_long.csv` | Serie larga para descomposicion por variable en la ultima ventana. |
-| `dashboard_condition_trend_summary.csv` | Resumen de tendencia reciente del indice (pendiente sobre ventanas pasadas, no pronostico). |
-| `current_asset_state.json` | Vista consolidada para **salida operativa** / integraciones; sigue siendo dato historico exportado, **no** telemetria en vivo. |
+| `dashboard_condition_current_state.csv` | Ultima **ventana historica exportada**: indices, banda de estado exploratorio, batches, confianza. |
+| `dashboard_condition_alerts_active.csv` | Alertas **exploratorias** por variable; **no** son alarmas normativas. |
+| `dashboard_condition_contributions_top_by_window.csv` | Contribuyentes al indice; el dashboard filtra la ultima `window_id`. |
+| `dashboard_condition_trend_summary.csv` | Resumen de **tendencia reciente** (pendiente sobre ventanas pasadas); **no** es RUL ni vida util remanente. |
+| `current_asset_state.json` | Vista consolidada para integraciones; sigue siendo dato **exportado**, no telemetria en vivo garantizada. |
 
-**Health index:** donde exista en CSV, `health_index = 100 - condition_index` (misma convencion que en `dashboard_predictions.csv` para `health_index_thresholded_by_batch`).
+**Estado global vs alertas por variable:** el estado exploratorio resume el **condition_index** global de la ventana. Una variable puede aparecer en alerta **attention** por su `condition_score` aunque el estado global sea **normal**.
 
-**Estado global vs alertas por variable:** el `condition_state` resume una banda visual sobre el **indice global** de la ventana. Una variable puede generar una alerta exploratoria **attention** por su `condition_score` aunque el estado global sea **normal**.
+## Interpretabilidad y pesos ponderados
 
-### Advertencias
+- **SHAP** y **permutation importance** explican el **clasificador**; **no** implican causalidad fisica.
+- Los **pesos ponderados** del assessment describen aporte al **indice de condicion**; **no** son importancia ML del modelo.
 
-- Todo lo anterior es **exploratorio** y de **apoyo a la decision**; no es **diagnostico normativo**.
-- **No** se calcula RUL ni vida util remanente.
-- **No** usar el dashboard para **control automatico** sin revision tecnica y procedimientos de planta.
+## Batch MEZCLA
 
-## Lineas base de condicion
+**MEZCLA** se modela como **clase operacional independiente**. No debe interpretarse como una composicion fisica garantizada de otros batches.
 
-El dashboard compara **tres vistas** del indice de condicion (solo lectura de CSV ya exportados):
+## Limitaciones
 
-1. **Assessment original** (`robust_percentile_fallback`): indices y medias por batch segun `dashboard_condition_index_by_batch.csv` y `condition_index` en `dashboard_predictions.csv`.
-2. **Threshold global (data-driven)**: indices recalibrados con umbrales globales estimados del historico; ver `dashboard_condition_index_thresholded_global_by_batch.csv`, `dashboard_assessment_thresholds_global.csv` y columnas `condition_index_thresholded_global` / `assessment_method_thresholded_global` en predicciones.
-3. **Threshold por batch (data-driven)**: linea base diferenciada por batch operacional **real** del historico; ver `dashboard_condition_index_thresholded_by_batch_by_batch.csv` y columnas `condition_index_thresholded_by_batch`, `assessment_method_thresholded_by_batch` y `baseline_batch_used` en predicciones.
-
-Los niveles **V0 / H / HH** en tablas de pesos son **exploratorios**: en este proyecto se estimaron como percentiles **P05 / P95 / P99** sobre el historico disponible. **No** deben interpretarse como limites normativos de alarma ni como evidencia de falla real.
-
-**Baseline por crudo predicho (implementado en Etapa 10D):** en la pestana **Predicciones**, la app calcula `baseline_batch_operational` a partir de `y_pred_label` solo si `confidence >= 0.80` y `margin_top2 >= 0.15`; si no, usa `GLOBAL` y marca el assessment operacional como incierto (`baseline_status`). Ver tambien la seccion siguiente.
-
-## Bandas dinamicas por crudo predicho (Etapa 10D)
-
-Sin reentrenar modelos ni SHAP, el dashboard deriva en memoria columnas operacionales desde `dashboard_predictions.csv` y grafica **Health Index** y **Condition Index** con bandas de color **exploratorias** (no normativas):
-
-| Columna | Regla resumida |
-|---------|----------------|
-| `baseline_batch_operational` | `y_pred_label` si pasa la compuerta de confianza; si no, `GLOBAL`. |
-| `baseline_status` | `predicted_batch_baseline` o `global_fallback_due_to_low_confidence`. |
-| `health_index_operational` | Por batch predicho: `health_index_thresholded_by_batch`; si `GLOBAL`: `100 - condition_index_thresholded_global`. |
-| `condition_index_operational` | Por batch predicho: `condition_index_thresholded_by_batch`; si `GLOBAL`: `condition_index_thresholded_global`. |
-
-En **Assessment**, la grafica *Variable individual con V0/H/HH por crudo predicho* une `dashboard_condition_contributions_long.csv` con predicciones y umbrales (`dashboard_assessment_thresholds_by_batch.csv` / `dashboard_assessment_thresholds_global.csv`). El selector permite **Predicted batch** (operacional), **Real batch historico** o **Global**.
-
-**Historico vs operacion:** en analisis historico suele compararse con **Batch real**; en lectura operacional se usa el baseline derivado del modelo con la compuerta anterior, o el fallback global.
-
-## EPI_BPC
-
-**EPI_BPC** es el indicador **gerencial** de condicion relativa del activo en el dashboard, alineado con el **health index** (convencion del proyecto: **health = 100 - condition** donde aplica en las series exportadas).
-
-- **Definicion operacional:** cuando existen columnas de baseline predicho (Etapa 10D), el grafico usa **`health_index_operational`** (linea base dinamica segun `y_pred_label` si la confianza es suficiente; si no, fallback global). Si no hay serie operacional, usa **`health_index_thresholded_by_batch`** del CSV.
-- **Interpretacion:** mayor **EPI_BPC** indica **mejor** condicion relativa en la escala 0-100 (exploratoria), frente a severidad del **condition index**.
-- **Bandas visuales** en la figura tipo picadora (solo apoyo visual, **no** alarmas normativas):
-  - **Verde:** EPI > 80 (normal exploratorio)
-  - **Amarillo:** 60 <= EPI <= 80 (observacion)
-  - **Rojo:** EPI < 60 (critico exploratorio)
-- La **linea base** de los indices subyacentes depende del **crudo predicho** cuando la clasificacion cumple la compuerta de confianza de la app; en caso contrario se usa baseline **global**.
-- Los umbrales **V0/H/HH** del historico (P05/P95/P99) **no** son limites normativos de alarma.
-
-La pestana **6. Assessment** incluye la figura principal y una vista tecnica complementaria del **condition index** por batch; la pestana **1. Resumen** muestra un resumen compacto del **EPI_BPC**.
+- Los datos son la **ultima exportacion** disponible; no se garantiza lectura en vivo.
+- Las metricas de **generalizacion** son las de **validacion cruzada temporal**; las del entrenamiento final sobre todo el conjunto miden **ajuste**, no generalizacion.
+- **No** usar el dashboard para **control automatico** de la bomba sin revision tecnica y procedimientos de planta.
+- **No** se calcula **RUL** ni **vida util remanente**.
+- La **tendencia** mostrada es estadistica reciente sobre el historico exportado, **no** pronostico de falla.
