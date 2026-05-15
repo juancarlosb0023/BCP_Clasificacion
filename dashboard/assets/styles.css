@@ -141,3 +141,80 @@ body {
   margin-top: 0.25rem;
   padding-top: 0.25rem;
 }
+
+/* Encabezado con logos UTP (izq.) e IDC (der.) */
+.app-header-with-logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem 1rem;
+}
+
+.header-text-block {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.header-logo-slot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.header-logo-slot-left {
+  padding-top: 0.15rem;
+}
+
+.header-logo-slot-right {
+  margin-left: auto;
+  padding-top: 0.15rem;
+}
+
+.header-logo {
+  display: block;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Logos horizontales: limitar altura para aspecto de cabecera */
+.header-logo-utp {
+  height: 44px;
+  max-width: min(200px, 28vw);
+}
+
+.header-logo-idc {
+  height: 40px;
+  max-width: min(180px, 26vw);
+}
+
+@media (max-width: 640px) {
+  .header-logo-slot-right {
+    margin-left: 0;
+  }
+}
+
+/* Tab 1 — imagen del equipo (fondo oscuro encaja con render CAD) */
+.tab-hero-wrap {
+  margin: 0 0 1rem 0;
+  padding: 0.5rem 0.65rem 0.65rem;
+  text-align: center;
+  background: #0d0d0d;
+  border-radius: 8px;
+  border: 1px solid #1f1f1f;
+}
+
+.tab-hero-equipo {
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  max-width: min(960px, 100%);
+  height: auto;
+  max-height: min(320px, 42vh);
+  object-fit: contain;
+}
+
+.tab-hero-caption {
+  margin: 0.45rem 0 0 0;
+  font-size: 0.8rem;
+  color: #b8bcc4;
+}

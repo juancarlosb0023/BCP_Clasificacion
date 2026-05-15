@@ -45,29 +45,29 @@ n_thresholds_global_rows,24.0,assessment_thresholds,Filas en umbrales globales (
 n_thresholds_by_batch_rows,72.0,assessment_thresholds,Filas en umbrales por batch (24x3)
 n_threshold_warnings_global,0.0,assessment_thresholds,Advertencias de ajuste epsilon (global)
 n_threshold_warnings_by_batch,0.0,assessment_thresholds,Advertencias de ajuste epsilon (por batch)
-threshold_method_global,global_percentile_p05_p95_p99,assessment_thresholds,Metodo estimacion umbrales globales (percentiles)
-threshold_method_by_batch,batch_percentile_p05_p95_p99,assessment_thresholds,Metodo estimacion umbrales por batch (percentiles)
-condition_index_mean_thresholded_global,27.130567458000026,assessment_thresholds,Media indice con umbrales globales (exploratorio)
-condition_index_median_thresholded_global,26.68476225987503,assessment_thresholds,Mediana indice umbrales globales
-condition_index_p95_thresholded_global,37.58752993196102,assessment_thresholds,P95 indice umbrales globales
-condition_index_min_thresholded_global,7.109006655776157,assessment_thresholds,Minimo indice umbrales globales
-condition_index_max_thresholded_global,53.97462954679174,assessment_thresholds,Maximo indice umbrales globales
-condition_index_mean_thresholded_by_batch,27.50529262273688,assessment_thresholds,Media indice con baseline por batch
-condition_index_median_thresholded_by_batch,29.76718261164148,assessment_thresholds,Mediana indice baseline por batch
-condition_index_p95_thresholded_by_batch,37.35337805571635,assessment_thresholds,P95 indice baseline por batch
-condition_index_min_thresholded_by_batch,4.6326532041897215,assessment_thresholds,Minimo indice baseline por batch
-condition_index_max_thresholded_by_batch,49.2427594322527,assessment_thresholds,Maximo indice baseline por batch
+threshold_method_global,global_percentile_p40_p75_p99,assessment_thresholds,Metodo estimacion umbrales globales (percentiles)
+threshold_method_by_batch,batch_percentile_p40_p75_p99,assessment_thresholds,Metodo estimacion umbrales por batch (percentiles)
+condition_index_mean_thresholded_global,26.256033632429638,assessment_thresholds,Media indice con umbrales globales (exploratorio)
+condition_index_median_thresholded_global,23.074923557942007,assessment_thresholds,Mediana indice umbrales globales
+condition_index_p95_thresholded_global,44.63162043942148,assessment_thresholds,P95 indice umbrales globales
+condition_index_min_thresholded_global,1.9804199660576491,assessment_thresholds,Minimo indice umbrales globales
+condition_index_max_thresholded_global,56.13194749400216,assessment_thresholds,Maximo indice umbrales globales
+condition_index_mean_thresholded_by_batch,26.416128048451792,assessment_thresholds,Media indice con baseline por batch
+condition_index_median_thresholded_by_batch,25.44427310323152,assessment_thresholds,Mediana indice baseline por batch
+condition_index_p95_thresholded_by_batch,44.860408436466585,assessment_thresholds,P95 indice baseline por batch
+condition_index_min_thresholded_by_batch,4.376891488850963,assessment_thresholds,Minimo indice baseline por batch
+condition_index_max_thresholded_by_batch,60.19763067888131,assessment_thresholds,Maximo indice baseline por batch
 threshold_note,Exploratory thresholds estimated from available historical windowed data; not normative alarm limits.,assessment_thresholds,"Nota metodologica: umbrales exploratorios, no normativos"
 current_window_id,1468,condition_state,Ultima ventana historica en condition_state (Etapa 8C)
 current_batch_real,RUBIALES,condition_state,Batch real de la ultima ventana
 current_batch_predicted,RUBIALES,condition_state,Clase predicha para la ultima ventana (modelo final)
 current_classification_confidence,0.999450981616974,condition_state,Confianza de clasificacion en la ultima ventana
-current_condition_index,27.31850076540609,condition_state,"Indice de condicion (baseline por batch, exploratorio)"
-current_health_index,72.68149923459391,condition_state,health_index = 100 - condition_index (exploratorio)
-current_condition_state,normal,condition_state,"Banda visual: normal <50, attention 50-80, high >=80 (no normativa)"
+current_condition_index,33.07303790155568,condition_state,"Indice de condicion (baseline por batch, exploratorio)"
+current_health_index,66.92696209844432,condition_state,health_index = 100 - condition_index (exploratorio)
+current_condition_state,attention,condition_state,"Banda visual: normal <50, attention 50-80, high >=80 (no normativa)"
 current_trend_direction,decreasing,condition_state,"Tendencia reciente del indice (ultimas 60 ventanas, exploratorio)"
-n_active_attention_alerts,1,condition_state,Alertas exploratorias nivel attention en ultima ventana exportada
-n_active_high_alerts,0,condition_state,Alertas exploratorias nivel high en ultima ventana exportada
-top_condition_component,motor,condition_state,Componente con mayor contribucion ponderada en la ultima ventana exportada.
+n_active_attention_alerts,4,condition_state,Alertas exploratorias nivel attention en ultima ventana exportada
+n_active_high_alerts,3,condition_state,Alertas exploratorias nivel high en ultima ventana exportada
+top_condition_component,motor,condition_state,Componente con mayor weighted_score en ultima ventana (top 10 interno)
 top_condition_family,displacement_pp,condition_state,Familia con mayor weighted_score en ultima ventana
 top_condition_variable,LA MOTOR\AC LA H MOTOR\Aceleración Rms [g],condition_state,Variable raw con mayor weighted_score en ultima ventana

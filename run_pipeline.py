@@ -1038,8 +1038,12 @@ def _run_assessment_thresholds() -> None:
     weights_clean = pd.read_csv(clean_path)
     mapping = pd.read_csv(map_path)
 
-    th_g = asm.estimate_thresholds_global(windowed_df, mapping)
-    th_b = asm.estimate_thresholds_by_batch(windowed_df, mapping)
+    th_g = asm.estimate_thresholds_global(
+        windowed_df, mapping, v0_quantile=0.4, h_quantile=0.75, hh_quantile=0.99
+    )
+    th_b = asm.estimate_thresholds_by_batch(
+        windowed_df, mapping, v0_quantile=0.4, h_quantile=0.75, hh_quantile=0.99
+    )
     w_thr = asm.merge_weights_with_thresholds(weights_clean, mapping, th_g)
     cond_g = asm.compute_condition_index_with_global_thresholds(windowed_df, w_thr)
     cond_b = asm.compute_condition_index_with_batch_thresholds(windowed_df, mapping, th_b)
@@ -1062,8 +1066,8 @@ def _run_assessment_thresholds() -> None:
         ("n_thresholds_by_batch_rows", float(len(th_b))),
         ("n_threshold_warnings_global", float(n_warn_g)),
         ("n_threshold_warnings_by_batch", float(n_warn_b)),
-        ("threshold_method_global", "global_percentile_p05_p95_p99"),
-        ("threshold_method_by_batch", "batch_percentile_p05_p95_p99"),
+        ("threshold_method_global", "global_percentile_p40_p75_p99"),
+        ("threshold_method_by_batch", "batch_percentile_p40_p75_p99"),
         ("condition_index_mean_thresholded_global", float(s_g.mean()) if len(s_g) else float("nan")),
         ("condition_index_median_thresholded_global", float(s_g.median()) if len(s_g) else float("nan")),
         ("condition_index_p95_thresholded_global", float(s_g.quantile(0.95)) if len(s_g) else float("nan")),

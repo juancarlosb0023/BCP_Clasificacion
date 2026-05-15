@@ -832,8 +832,8 @@ def estimate_thresholds_global(
     windowed_df: pd.DataFrame,
     mapping_df: pd.DataFrame,
     value_stat: str = "mean",
-    v0_quantile: float = 0.05,
-    h_quantile: float = 0.95,
+    v0_quantile: float = 0.4,
+    h_quantile: float = 0.75,
     hh_quantile: float = 0.99,
 ) -> pd.DataFrame:
     """Umbrales V0/H/HH globales por variable (percentiles sobre todas las ventanas)."""
@@ -848,7 +848,7 @@ def estimate_thresholds_global(
                 windowed_df[ccol],
                 mr,
                 value_stat=value_stat,
-                threshold_method="global_percentile_p05_p95_p99",
+                threshold_method="global_percentile_p40_p75_p99",
                 v0_q=v0_quantile,
                 h_q=h_quantile,
                 hh_q=hh_quantile,
@@ -863,8 +863,8 @@ def estimate_thresholds_by_batch(
     mapping_df: pd.DataFrame,
     value_stat: str = "mean",
     target_col: str = "Batch",
-    v0_quantile: float = 0.05,
-    h_quantile: float = 0.95,
+    v0_quantile: float = 0.4,
+    h_quantile: float = 0.75,
     hh_quantile: float = 0.99,
 ) -> pd.DataFrame:
     """Umbrales V0/H/HH por Batch y variable (percentiles dentro de cada batch)."""
@@ -888,7 +888,7 @@ def estimate_thresholds_by_batch(
                     sub[ccol],
                     mr,
                     value_stat=value_stat,
-                    threshold_method="batch_percentile_p05_p95_p99",
+                    threshold_method="batch_percentile_p40_p75_p99",
                     v0_q=v0_quantile,
                     h_q=h_quantile,
                     hh_q=hh_quantile,
@@ -937,7 +937,7 @@ def merge_weights_with_thresholds(
         columns={"v0_estimated": "v0", "h_estimated": "h", "hh_estimated": "hh"}
     )
     out["orientation"] = "cost"
-    out["threshold_method"] = "global_percentile_p05_p95_p99"
+    out["threshold_method"] = "global_percentile_p40_p75_p99"
     for _, r in out.iterrows():
         if not (float(r["v0"]) < float(r["h"]) < float(r["hh"])):
             raise ValueError(

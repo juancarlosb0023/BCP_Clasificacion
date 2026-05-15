@@ -31,9 +31,10 @@ python run_pipeline.py --stage dashboard_exports
 | dashboard_pairwise_permanova.csv | Comparaciones pairwise PERMANOVA (FDR) |
 | dashboard_pairwise_permdisp.csv | Comparaciones pairwise PERMDISP (FDR) |
 | dashboard_pca_centroids.csv | Centroides PCA por clase |
+| dashboard_pca_projection.csv | Proyeccion PCA (PC1, PC2) por ventana y batch |
 | dashboard_batch_transitions.csv | Transiciones de operacion entre batches |
 | dashboard_assessment_thresholds_summary.csv | KPIs y notas de umbrales V0/H/HH exploratorios (Etapa 8B) |
-| dashboard_assessment_thresholds_global.csv | Umbrales globales por variable (P05/P95/P99) |
+| dashboard_assessment_thresholds_global.csv | Umbrales globales por variable (P40/P75/P99) |
 | dashboard_assessment_thresholds_by_batch.csv | Umbrales por Batch y variable |
 | dashboard_sensor_weights_with_thresholds.csv | Pesos normalizados con V0/H/HH globales estimados |
 | dashboard_condition_index_thresholded_global_by_window.csv | Indice por ventana con baseline global |

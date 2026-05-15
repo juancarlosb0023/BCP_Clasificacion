@@ -30,7 +30,7 @@ except OSError:
     DASH_APP_BUILD = "?"
 
 # Version semantica del dashboard Dash (incrementar manualmente al publicar cambios de UI o logica).
-DASHBOARD_APP_VERSION = "1.4.16"
+DASHBOARD_APP_VERSION = "1.4.17"
 
 CRITICAL_FILES = (
     "dashboard_kpis.csv",
@@ -841,6 +841,17 @@ def tab_resumen() -> html.Div:
     best = str(kpi_lookup(kpis, "best_model_name") or "xgboost")
     children: list = [
         html.H3("Resumen ejecutivo"),
+        html.Div(
+            [
+                html.Img(
+                    src=_dash_asset("equipo_bpc.png"),
+                    alt="Representación del equipo: estación de bombeo BPC",
+                    className="tab-hero-equipo",
+                ),
+                html.P("Activo analizado: estación de bombeo BPC (vista esquemática).", className="tab-hero-caption"),
+            ],
+            className="tab-hero-wrap",
+        ),
         kpi_cards(kpis),
         kpi_cards_threshold(kpis),
         html.H4("Estado de condicion (ultima ventana historica exportada)"),
@@ -884,7 +895,7 @@ def tab_resumen() -> html.Div:
                 html.P(
                     "En la pestaña Predicciones, la serie temporal de indices superpuestos muestra por defecto "
                     "threshold por batch (condition_index_thresholded_by_batch) y health index por batch. "
-                    "Los umbrales V0/H/HH son exploratorios, estimados por percentiles P05/P95/P99, "
+                    "Los umbrales V0/H/HH son exploratorios, estimados por percentiles P40/P75/P99, "
                     "y no constituyen limites normativos de alarma."
                 ),
                 html.P(
@@ -2330,7 +2341,7 @@ def operational_variable_section() -> list[Any]:
             className="note",
         ),
         html.P(
-            "Los umbrales son exploratorios (P05/P95/P99), no limites normativos ni diagnostico de falla.",
+            "Los umbrales son exploratorios (P40/P75/P99), no limites normativos ni diagnostico de falla.",
             className="note",
         ),
         html.Div(
@@ -2647,7 +2658,7 @@ def tab_assessment() -> html.Div:
                     "Los pesos ponderados no son importancia ML; describen contribuciones al indice exploratorio."
                 ),
                 html.P(
-                    "Los umbrales V0/H/HH fueron estimados con percentiles P05/P95/P99 sobre el historico exportado; "
+                    "Los umbrales V0/H/HH fueron estimados con percentiles P40/P75/P99 sobre el historico exportado; "
                     "no son limites normativos de alarma."
                 ),
                 html.P(
@@ -2660,7 +2671,7 @@ def tab_assessment() -> html.Div:
                 html.P(
                     "Etapa 10D: las bandas de color en indices operacionales dependen del crudo predicho por el modelo cuando "
                     "la confianza es suficiente; si no, se usa baseline GLOBAL (assessment incierto en operacion). "
-                    "V0/H/HH son exploratorios (P05/P95/P99), no alarmas normativas."
+                    "V0/H/HH son exploratorios (P40/P75/P99), no alarmas normativas."
                 ),
                 html.P(
                     "En analisis historico se puede comparar contra Batch real; en operacion el baseline operacional se deriva de "
@@ -2677,7 +2688,7 @@ def tab_assessment() -> html.Div:
             dcc.Graph(figure=fig_epi_bpc_picadora_style(pred_op)),
             html.P(
                 "El EPI_BPC usa la linea base del crudo predicho por el modelo cuando la confianza es suficiente. "
-                "Las bandas visuales son exploratorias; V0/H/HH fueron estimados por P05/P95/P99 del historico disponible y no son limites normativos.",
+                "Las bandas visuales son exploratorias; V0/H/HH fueron estimados por P40/P75/P99 del historico disponible y no son limites normativos.",
                 className="note",
             ),
             html.H5("Condition Index — vista tecnica (severidad relativa)"),
@@ -2963,7 +2974,7 @@ def tab_assessment() -> html.Div:
                 html.Ul(
                     [
                         html.Li("Los pesos ponderados no son importancia ML."),
-                        html.Li("Los umbrales V0/H/HH fueron estimados con P05/P95/P99."),
+                        html.Li("Los umbrales V0/H/HH fueron estimados con P40/P75/P99."),
                         html.Li("El modo by_batch usa Batch real en analisis historico."),
                         html.Li(
                             "En operacion futura se debe seleccionar baseline por batch predicho solo si la confianza es suficiente."
@@ -2971,7 +2982,7 @@ def tab_assessment() -> html.Div:
                         html.Li("El indice es exploratorio/comparativo, no diagnostico normativo."),
                         html.Li(
                             "Etapa 10D: bandas dinamicas segun crudo predicho con compuerta de confianza; V0/H/HH por variable "
-                            "siguen siendo exploratorios (P05/P95/P99), no normativos."
+                            "siguen siendo exploratorios (P40/P75/P99), no normativos."
                         ),
                     ]
                 ),
@@ -3014,12 +3025,12 @@ def tab_advertencias() -> html.Div:
 1. Las bandas usadas en operacion dependen del crudo predicho (`y_pred_label`) cuando la confianza de clasificacion es suficiente (compuerta exploratoria en la app).
 2. Si la confianza es baja, debe usarse baseline **GLOBAL** o interpretarse el assessment como **incierto** en sentido operacional.
 3. En analisis historico se puede comparar contra **Batch real**; en operacion se usa el baseline derivado del modelo con la compuerta.
-4. V0/H/HH son exploratorios (P05/P95/P99); no son alarmas normativas ni diagnostico de falla.
+4. V0/H/HH son exploratorios (P40/P75/P99); no son alarmas normativas ni diagnostico de falla.
 
 **Umbrales V0 / H / HH (exploratorios)**
 
 1. Los umbrales V0/H/HH globales y por batch son exploratorios.
-2. Fueron estimados desde el historico disponible: V0 = P05, H = P95, HH = P99.
+2. Fueron estimados desde el historico disponible: V0 = P40, H = P75, HH = P99.
 3. No son limites normativos de alarma.
 4. El modo by_batch usa Batch real en el analisis historico.
 5. En operacion futura, la linea base por batch debe seleccionarse con y_pred_label solo si confidence y margin_top2 son suficientes.
@@ -3070,6 +3081,11 @@ app.server.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 server = app.server
 
 
+def _dash_asset(filename: str) -> str:
+    """URL de archivo estatico en dashboard/assets/ (compatible con prefijos de ruta)."""
+    return app.get_asset_url(filename)
+
+
 @app.server.after_request
 def _no_cache_headers(response):
     """Evita que el navegador cachee respuestas del dashboard (recarga con datos actuales)."""
@@ -3082,33 +3098,54 @@ app.layout = html.Div(
     [
         html.Div(
             [
-                html.H1(
+                html.Div(
+                    html.Img(
+                        src=_dash_asset("logo_utp.png"),
+                        alt="Universidad Tecnológica de Pereira (UTP)",
+                        className="header-logo header-logo-utp",
+                    ),
+                    className="header-logo-slot header-logo-slot-left",
+                ),
+                html.Div(
                     [
-                        "Proyecto 4 — Clasificacion BPC (dashboard) ",
-                        html.Span(
-                            f"v{DASHBOARD_APP_VERSION}",
-                            style={"fontSize": "0.55em", "color": "#555", "fontWeight": "500"},
+                        html.H1(
+                            [
+                                "Proyecto 4 — Clasificacion BPC (dashboard) ",
+                                html.Span(
+                                    f"v{DASHBOARD_APP_VERSION}",
+                                    style={"fontSize": "0.55em", "color": "#555", "fontWeight": "500"},
+                                ),
+                            ]
                         ),
-                    ]
+                        html.P(
+                            "Solo lectura de data/dashboard/*.csv y data/dashboard/current_asset_state.json. "
+                            "Sin recalculo de modelos, SHAP, estadistica, assessment, umbrales ni condition_state.",
+                            style={"color": "#555", "margin": 0},
+                        ),
+                        html.P(
+                            "Build Etapa 10D + EPI_BPC: bandas por crudo predicho, EPI estilo picadora, estado 10C.",
+                            style={"color": "#888", "fontSize": "0.8rem", "margin": "0.35rem 0 0 0"},
+                        ),
+                        html.P(
+                            f"Version app {DASHBOARD_APP_VERSION} | mtime dashboard/app.py UTC: {DASH_APP_BUILD}. "
+                            f"Datos CSV/JSON leidos al arrancar este proceso: {DATA_LOADED_AT}. "
+                            "Si ves una version vieja: cierra otras ventanas del mismo puerto, mata procesos Python viejos en ese puerto, "
+                            "reinicia el servidor y recarga (Ctrl+F5).",
+                            style={"color": "#666", "fontSize": "0.78rem", "margin": "0.4rem 0 0 0"},
+                        ),
+                    ],
+                    className="header-text-block",
                 ),
-                html.P(
-                    "Solo lectura de data/dashboard/*.csv y data/dashboard/current_asset_state.json. "
-                    "Sin recalculo de modelos, SHAP, estadistica, assessment, umbrales ni condition_state.",
-                    style={"color": "#555", "margin": 0},
-                ),
-                html.P(
-                    "Build Etapa 10D + EPI_BPC: bandas por crudo predicho, EPI estilo picadora, estado 10C.",
-                    style={"color": "#888", "fontSize": "0.8rem", "margin": "0.35rem 0 0 0"},
-                ),
-                html.P(
-                    f"Version app {DASHBOARD_APP_VERSION} | mtime dashboard/app.py UTC: {DASH_APP_BUILD}. "
-                    f"Datos CSV/JSON leidos al arrancar este proceso: {DATA_LOADED_AT}. "
-                    "Si ves una version vieja: cierra otras ventanas del mismo puerto, mata procesos Python viejos en ese puerto, "
-                    "reinicia el servidor y recarga (Ctrl+F5).",
-                    style={"color": "#666", "fontSize": "0.78rem", "margin": "0.4rem 0 0 0"},
+                html.Div(
+                    html.Img(
+                        src=_dash_asset("logo_idc.png"),
+                        alt="IDC Ingeniería de Confiabilidad",
+                        className="header-logo header-logo-idc",
+                    ),
+                    className="header-logo-slot header-logo-slot-right",
                 ),
             ],
-            className="app-header",
+            className="app-header app-header-with-logos",
         ),
         *build_alerts(),
         dcc.Tabs(
